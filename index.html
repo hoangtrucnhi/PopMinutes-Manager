@@ -87,6 +87,7 @@
             padding: 4px;
             gap: 4px;
             margin: 20px 20px 16px;
+            width: calc(100% - 40px); /* 🚨 Thêm dòng này để full chiều ngang */
         }
         .task-tab {
             flex: 1;
@@ -540,23 +541,43 @@
                 return;
             }
 
-            container.innerHTML = bookings.map(b => `
+            container.innerHTML = bookings.map(b => {
+                const isConfirmed = b.status === 'confirmed'; // 🚨 Kiểm tra trạng thái
+                
+                return `
                 <div class="task-item">
-                    <div class="task-title">${b.guest_name || 'Khách đặt trước'}</div>
-                    <div class="task-meta">
-                        <span><i class="fa-regular fa-clock"></i> Hẹn: ${fmtDateTime(b.start_time_iso)}</span>
-                        ${b.note ? `<span><i class="fa-regular fa-note-sticky"></i> ${b.note}</span>` : ''}
+                    <div class="task-header">
+                        <div>
+                            <div class="task-title">${b.guest_name || 'Khách đặt trước'}</div>
+                            <div class="task-meta">
+                                <span><i class="fa-regular fa-clock"></i> Hẹn: ${fmtDateTime(b.start_time_iso)}</span>
+                                ${b.note ? `<span><i class="fa-regular fa-note-sticky"></i> ${b.note}</span>` : ''}
+                            </div>
+                        </div>
+                        ${isConfirmed ? `
+                            <div style="color: var(--success); font-size: 11px; font-weight: 800; text-transform: uppercase;">
+                                <i class="fa-solid fa-check-circle"></i> Đã xác nhận
+                            </div>
+                        ` : `
+                            <div style="color: #F59E0B; font-size: 11px; font-weight: 800; text-transform: uppercase;">
+                                <i class="fa-solid fa-hourglass-half"></i> Chờ duyệt
+                            </div>
+                        `}
                     </div>
+                    
                     <div class="btn-actions">
-                        <button onclick="submitBookingAction('confirm', '${b.booking_id}', this)" class="btn-sm primary">
-                            <i class="fa-solid fa-check"></i> Xác nhận
-                        </button>
-                        <button onclick="submitBookingAction('cancel', '${b.booking_id}', this)" class="btn-sm danger">
+                        ${!isConfirmed ? `
+                            <button onclick="submitBookingAction('confirm', '${b.booking_id}', this)" class="btn-sm primary">
+                                <i class="fa-solid fa-check"></i> Xác nhận
+                            </button>
+                        ` : ''}
+                        <button onclick="submitBookingAction('cancel', '${b.booking_id}', this)" class="btn-sm ${isConfirmed ? 'outline' : 'danger'}">
                             <i class="fa-solid fa-xmark"></i> Hủy
                         </button>
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         async function submitManagerAction(action, checkinId, btn) {
