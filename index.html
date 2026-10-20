@@ -76,22 +76,18 @@
         </header>
 
         <!-- Tabs -->
+        <!-- Tabs -->
         <div class="flex px-4 mt-4 gap-2">
             <button onclick="switchTab('active')" id="tab-active" class="flex-1 py-2 rounded-lg font-bold text-sm bg-blue-100 navy-text transition">Đang ngồi</button>
+            <button onclick="switchTab('confirm')" id="tab-confirm" class="flex-1 py-2 rounded-lg font-bold text-sm text-slate-500 transition hover:bg-slate-100">Chờ Bill</button>
             <button onclick="switchTab('pending')" id="tab-pending" class="flex-1 py-2 rounded-lg font-bold text-sm text-slate-500 transition hover:bg-slate-100">Chờ tới</button>
         </div>
 
         <!-- Danh sách -->
         <div class="p-4">
-            <!-- Active Check-ins -->
-            <div id="list-active" class="space-y-3">
-                <div class="text-center text-slate-400 py-10"><i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i><p>Đang tải dữ liệu...</p></div>
-            </div>
-            
-            <!-- Pending Bookings -->
-            <div id="list-pending" class="space-y-3 hidden">
-                <!-- Rendered by JS -->
-            </div>
+            <div id="list-active" class="space-y-3"></div>
+            <div id="list-confirm" class="space-y-3 hidden"></div>
+            <div id="list-pending" class="space-y-3 hidden"></div>
         </div>
     </div>
 
@@ -228,22 +224,44 @@
         // ================= DASHBOARD DATA =================
         function switchTab(tab) {
             currentTab = tab;
-            const btnActive = document.getElementById('tab-active');
-            const btnPending = document.getElementById('tab-pending');
-            const listActive = document.getElementById('list-active');
-            const listPending = document.getElementById('list-pending');
-
-            if (tab === 'active') {
-                btnActive.className = 'flex-1 py-2 rounded-lg font-bold text-sm bg-blue-100 navy-text transition';
-                btnPending.className = 'flex-1 py-2 rounded-lg font-bold text-sm text-slate-500 transition hover:bg-slate-100';
-                listActive.classList.remove('hidden');
-                listPending.classList.add('hidden');
-            } else {
-                btnPending.className = 'flex-1 py-2 rounded-lg font-bold text-sm bg-blue-100 navy-text transition';
-                btnActive.className = 'flex-1 py-2 rounded-lg font-bold text-sm text-slate-500 transition hover:bg-slate-100';
-                listPending.classList.remove('hidden');
-                listActive.classList.add('hidden');
+            const tabs = ['active', 'confirm', 'pending'];
+            tabs.forEach(t => {
+                const btn = document.getElementById('tab-' + t);
+                const list = document.getElementById('list-' + t);
+                if (t === tab) {
+                    btn.className = 'flex-1 py-2 rounded-lg font-bold text-sm bg-blue-100 navy-text transition';
+                    if (list) list.classList.remove('hidden');
+                } else {
+                    btn.className = 'flex-1 py-2 rounded-lg font-bold text-sm text-slate-500 transition hover:bg-slate-100';
+                    if (list) list.classList.add('hidden');
+                }
+            });
+        }
+                function renderPendingConfirms(confirms) {
+            const container = document.getElementById('list-confirm');
+            if (!confirms || confirms.length === 0) {
+                container.innerHTML = `<div class="text-center text-slate-400 py-10"><i class="fa-solid fa-receipt text-4xl mb-3 opacity-50"></i><p>Không có bill nào chờ xác nhận</p></div>`;
+                return;
             }
+
+            container.innerHTML = confirms.map(c => `
+                <div class="card p-4 border-l-4 border-orange-500">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <div class="font-bold text-slate-800 text-lg">${c.guest_name || 'Khách lẻ'}</div>
+                            <div class="text-xs text-slate-500 mt-1"><i class="fa-regular fa-clock mr-1"></i> Ra: ${fmtDateTime(c.check_out_at)}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xl font-bold navy-text">${c.billable_hours}h</div>
+                            <div class="text-[10px] text-slate-500 font-bold">${Number(c.revenue_amount).toLocaleString('vi-VN')}đ</div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 mt-3 pt-3 border-t">
+                        <button onclick="submitManagerAction('confirm', '${c.checkin_id}', this)" class="flex-1 bg-green-500 text-white py-2 rounded-lg font-bold text-sm shadow hover:bg-green-600"><i class="fa-solid fa-check mr-1"></i> Xác nhận Bill</button>
+                        <button onclick="submitManagerAction('undo', '${c.checkin_id}', this)" class="flex-1 bg-orange-50 text-orange-700 py-2 rounded-lg font-bold text-sm border border-orange-200 hover:bg-orange-100"><i class="fa-solid fa-rotate-left mr-1"></i> Hoàn tác</button>
+                    </div>
+                </div>
+            `).join('');
         }
 
         async function loadDashboard() {
@@ -257,6 +275,7 @@
                     document.getElementById('statPending').textContent = data.pending_count;
                     
                     renderActiveCheckins(data.active_checkins);
+                    renderPendingConfirms(data.pending_confirms || []); // 🚨 THÊM DÒNG NÀY
                     renderPendingBookings(data.pending_bookings);
                 } else if (res.status === 401) {
                     showToast('Phiên đăng nhập hết hạn', false);
@@ -280,7 +299,7 @@
             }
 
             container.innerHTML = checkins.map(c => {
-                const isConfirmed = !!c.manager_confirmed_at;
+                const isConfirmed = !!c.verified;
                 return `
                 <div class="card p-4">
                     <div class="flex justify-between items-start mb-2">
@@ -290,19 +309,14 @@
                         </div>
                         <div class="text-right">
                             <div class="text-xl font-bold ${isConfirmed ? 'text-green-600' : 'text-orange-500'}">${c.elapsed_hours.toFixed(1)}h</div>
-                            <div class="text-[10px] uppercase font-bold ${isConfirmed ? 'text-green-600' : 'text-orange-500'}">${isConfirmed ? 'Đang ngồi' : 'Chờ xác nhận'}</div>
+                            <div class="text-[10px] uppercase font-bold ${isConfirmed ? 'text-green-600' : 'text-orange-500'}">${isConfirmed ? 'Đang ngồi' : 'Chờ quét QR'}</div>
                         </div>
                     </div>
                     <div class="text-xs text-slate-500 mb-3"><i class="fa-regular fa-clock mr-1"></i> Vào: ${fmtDateTime(c.check_in_at)}</div>
                     
-                    ${isConfirmed ? `
-                        <div class="flex gap-2 mt-3 pt-3 border-t">
-                            <button onclick="submitManagerAction('confirm', '${c.checkin_id}', this)" class="flex-1 bg-green-50 text-green-700 py-2 rounded-lg font-bold text-sm border border-green-200 hover:bg-green-100"><i class="fa-solid fa-check mr-1"></i> Xác nhận Bill</button>
-                            <button onclick="submitManagerAction('undo', '${c.checkin_id}', this)" class="flex-1 bg-orange-50 text-orange-700 py-2 rounded-lg font-bold text-sm border border-orange-200 hover:bg-orange-100"><i class="fa-solid fa-rotate-left mr-1"></i> Hoàn tác</button>
-                        </div>
-                    ` : `
-                        <div class="bg-orange-50 text-orange-700 text-xs p-2 rounded-lg text-center font-medium">Khách hàng chưa quét QR / Chưa xác nhận</div>
-                    `}
+                    ${!isConfirmed ? `
+                        <div class="bg-orange-50 text-orange-700 text-xs p-2 rounded-lg text-center font-medium">Khách chưa quét QR vào bàn</div>
+                    ` : ''}
                 </div>
                 `;
             }).join('');
