@@ -4,145 +4,331 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PopMinutes Manager</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: 'Be Vietnam Pro', sans-serif; background-color: #F8FAFC; color: #0F172A; }
-        
-        /* Đồng bộ giống app Sales */
-        .card { background: #FFFFFF; border-radius: 16px; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04); border: 1px solid #E2E8F0; }
-        
-        .btn-primary { background: #1B2B7A; color: #FFFFFF; border-radius: 12px; transition: all 0.2s; }
-        .btn-primary:hover { background: #131F5C; }
-        .btn-primary:active { transform: scale(0.98); }
-        
-        .btn-success { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; border-radius: 12px; transition: all 0.2s; font-weight: 600; }
-        .btn-success:hover { background: #ECFDF5; }
-        
-        .btn-danger { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; border-radius: 12px; transition: all 0.2s; font-weight: 600; }
-        .btn-danger:hover { background: #FEE2E2; }
-        
-        .btn-outline { background: #FFFFFF; color: #0F172A; border: 1px solid #CBD5E1; border-radius: 12px; transition: all 0.2s; font-weight: 600; }
-        .btn-outline:hover { border-color: #1B2B7A; color: #1B2B7A; }
+        /* ========== CSS COPY Y NGUYÊN TỪ APP SALES ========== */
+        :root {
+            --navy: #1B2B7A;
+            --navy-deep: #131F5C;
+            --navy-pale: #F0F3FF;
+            --white: #FFFFFF;
+            --surface: #F8FAFC;
+            --border: #E2E8F0;
+            --text: #0F172A;
+            --muted: #64748B;
+            --success: #10B981;
+            --danger: #EF4444;
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+        }
 
-        .modal-overlay { background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(8px); }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        body {
+            font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--surface);
+            color: var(--text);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Header */
+        .dash-header {
+            background: var(--navy);
+            padding: 24px;
+            border-radius: 0 0 24px 24px;
+            box-shadow: 0 4px 16px rgba(19, 31, 92, 0.15);
+            color: var(--white);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .dash-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .dash-greeting p { font-size: 12px; color: rgba(255,255,255,0.7); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+        .dash-greeting h2 { font-size: 20px; font-weight: 800; }
+        
+        .logout-btn {
+            width: 40px; height: 40px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s;
+        }
+        .logout-btn:active { transform: scale(0.92); }
+
+        /* Stats */
+        .stats-row { display: flex; gap: 12px; }
+        .stat-box {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .stat-box p { font-size: 12px; color: rgba(255,255,255,0.8); font-weight: 600; }
+        .stat-box h3 { font-size: 24px; font-weight: 800; margin-top: 4px; }
+
+        /* Tabs */
+        .task-tabs {
+            display: flex;
+            background: #F1F5F9;
+            border-radius: 30px;
+            padding: 4px;
+            gap: 4px;
+            margin: 20px 20px 16px;
+        }
+        .task-tab {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 26px;
+            font-weight: 700;
+            font-size: 13.5px;
+            cursor: pointer;
+            background: transparent;
+            color: var(--muted);
+            border: none;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+        .task-tab.active {
+            background: var(--navy);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(27, 43, 122, 0.25);
+        }
+
+        /* Card / List Item */
+        .list-container { padding: 0 20px 100px; display: flex; flex-direction: column; gap: 12px; }
+        
+        .task-item {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .task-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .task-title { font-weight: 700; font-size: 16px; color: var(--text); }
+        .task-meta { font-size: 12.5px; color: var(--muted); margin-top: 6px; display: flex; flex-direction: column; gap: 4px;}
+        .task-meta i { width: 14px; text-align: center; }
+        
+        .status-text { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .status-active { color: var(--success); }
+        .status-wait { color: #F59E0B; }
+
+        /* Buttons */
+        .btn-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px dashed var(--border);
+        }
+        .btn-sm {
+            flex: 1;
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            transition: 0.15s;
+        }
+        .btn-sm:active { transform: scale(0.97); }
+        .btn-sm.primary { background: var(--navy); color: #fff; }
+        .btn-sm.outline { background: #fff; border: 1.5px solid var(--border); color: var(--text); }
+        .btn-sm.danger { background: #FEF2F2; border: 1px solid #FECACA; color: #991B1B; }
+        .btn-sm.disabled { background: #F1F5F9; color: #94A3B8; cursor: not-allowed; }
+
+        /* Empty State */
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+        .empty-state i { font-size: 36px; color: #CBD5E1; margin-bottom: 12px; }
+
+        /* Floating Button (Scan QR) */
+        .fab-scan {
+            position: fixed; bottom: 24px; right: 24px;
+            width: 60px; height: 60px;
+            background: var(--navy);
+            color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 8px 24px rgba(27, 43, 122, 0.35);
+            cursor: pointer; border: none; z-index: 40;
+            transition: transform 0.2s;
+        }
+        .fab-scan:active { transform: scale(0.92); }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+            display: none; align-items: flex-end; justify-content: center;
+            z-index: 100;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: var(--surface);
+            width: 100%; max-width: 500px;
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            padding: 24px;
+            padding-bottom: calc(24px + env(safe-area-inset-bottom));
+            animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-header h3 { font-size: 18px; font-weight: 800; color: var(--navy); }
+        .modal-close {
+            width: 32px; height: 32px; background: #E2E8F0; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: none; cursor: pointer; color: var(--muted); font-size: 14px;
+        }
+
+        .input-field {
+            width: 100%; padding: 14px;
+            border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+            font-family: inherit; font-size: 15px; margin-bottom: 16px;
+            outline: none; transition: 0.2s;
+        }
+        .input-field:focus { border-color: var(--navy); box-shadow: 0 0 0 4px var(--navy-pale); }
+
+        /* Toast */
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-20px);
+            padding: 12px 24px; border-radius: 30px;
+            color: white; font-weight: 600; font-size: 14px;
+            opacity: 0; pointer-events: none; transition: 0.3s; z-index: 999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
     </style>
 </head>
-<body class="text-slate-800">
+<body>
 
     <!-- ================= LOGIN SCREEN ================= -->
-    <div id="login-screen" class="min-h-screen flex flex-col justify-center items-center p-6">
-        <div class="w-full max-w-md">
-            <div class="text-center mb-8">
-                <div class="w-20 h-20 navy-bg rounded-2xl mx-auto flex items-center justify-center text-white text-3xl mb-4 shadow-lg">
+    <div id="login-screen" style="min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px;">
+        <div style="width: 100%; max-width: 400px;">
+            <div style="text-align: center; margin-bottom: 32px;">
+                <div style="width: 72px; height: 72px; background: var(--navy); border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 32px; box-shadow: 0 8px 24px rgba(27,43,122,0.3); margin-bottom: 16px;">
                     <i class="fa-solid fa-store"></i>
                 </div>
-                <h1 class="text-2xl font-bold navy-text">PopMinutes Manager</h1>
-                <p class="text-slate-500 mt-2 text-sm">Đăng nhập để quản lý quán</p>
+                <h1 style="font-size: 24px; font-weight: 800; color: var(--navy);">PopMinutes Manager</h1>
+                <p style="color: var(--muted); font-size: 14px; margin-top: 4px;">Đăng nhập để quản lý quán</p>
             </div>
             
-            <div class="card p-6">
-                <div class="mb-4">
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Email Manager</label>
-                    <input type="email" id="loginEmail" class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="manager@highlands.vn">
-                </div>
-                <div id="loginError" class="text-red-500 text-sm font-medium mb-4 hidden"></div>
-                <button onclick="handleLogin()" id="loginBtn" class="btn-primary w-full py-3 rounded-xl font-bold flex justify-center items-center gap-2">
-                    <span>Đăng nhập</span>
-                    <i class="fa-solid fa-arrow-right-to-bracket" id="loginIcon"></i>
-                    <i class="fa-solid fa-spinner fa-spin hidden" id="loginSpinner"></i>
+            <div class="task-item" style="padding: 24px;">
+                <label style="display: block; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 8px;">Email Manager</label>
+                <input type="email" id="loginEmail" class="input-field" placeholder="manager@highlands.vn">
+                <div id="loginError" style="color: var(--danger); font-size: 13px; font-weight: 600; margin-top: -8px; margin-bottom: 16px; display: none;"></div>
+                <button onclick="handleLogin()" id="loginBtn" class="btn-sm primary" style="padding: 14px; font-size: 15px;">
+                    <span>Đăng nhập</span> <i class="fa-solid fa-arrow-right-to-bracket" id="loginIcon"></i>
+                    <i class="fa-solid fa-spinner fa-spin" id="loginSpinner" style="display: none;"></i>
                 </button>
             </div>
         </div>
     </div>
 
     <!-- ================= DASHBOARD SCREEN ================= -->
-    <div id="dashboard-screen" class="hidden pb-24">
+    <div id="dashboard-screen" style="display: none;">
         <!-- Header -->
-        <header class="navy-bg text-white p-5 rounded-b-3xl shadow-lg sticky top-0 z-10">
-            <div class="flex justify-between items-center mb-4">
-                <div>
-                    <p class="text-blue-200 text-xs font-semibold uppercase tracking-wider">Quán hiện tại</p>
-                    <h2 id="headerCafeName" class="text-xl font-bold">Đang tải...</h2>
+        <header class="dash-header">
+            <div class="dash-topbar">
+                <div class="dash-greeting">
+                    <p>Quán hiện tại</p>
+                    <h2 id="headerCafeName">Đang tải...</h2>
                 </div>
-                <button onclick="handleLogout()" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition">
+                <button onclick="handleLogout()" class="logout-btn">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 </button>
             </div>
-            <div class="flex gap-4">
-                <div class="bg-white/10 rounded-xl p-3 flex-1 text-center">
-                    <p class="text-xs text-blue-200">Đang ngồi</p>
-                    <p id="statActive" class="text-2xl font-bold">0</p>
+            <div class="stats-row">
+                <div class="stat-box">
+                    <p>Đang ngồi</p>
+                    <h3 id="statActive">0</h3>
                 </div>
-                <div class="bg-white/10 rounded-xl p-3 flex-1 text-center">
-                    <p class="text-xs text-blue-200">Chờ tới</p>
-                    <p id="statPending" class="text-2xl font-bold">0</p>
+                <div class="stat-box">
+                    <p>Chờ tới</p>
+                    <h3 id="statPending">0</h3>
                 </div>
             </div>
         </header>
 
         <!-- Tabs -->
-        <!-- Tabs -->
-        <div class="flex px-4 mt-4 gap-2">
-            <button onclick="switchTab('active')" id="tab-active" class="flex-1 py-2 rounded-lg font-bold text-sm bg-blue-100 navy-text transition">Đang ngồi</button>
-            <button onclick="switchTab('confirm')" id="tab-confirm" class="flex-1 py-2 rounded-lg font-bold text-sm text-slate-500 transition hover:bg-slate-100">Chờ Bill</button>
-            <button onclick="switchTab('pending')" id="tab-pending" class="flex-1 py-2 rounded-lg font-bold text-sm text-slate-500 transition hover:bg-slate-100">Chờ tới</button>
+        <div class="task-tabs">
+            <button onclick="switchTab('active')" id="tab-active" class="task-tab active">Đang ngồi</button>
+            <button onclick="switchTab('confirm')" id="tab-confirm" class="task-tab">Chờ Bill</button>
+            <button onclick="switchTab('pending')" id="tab-pending" class="task-tab">Chờ tới</button>
         </div>
 
         <!-- Danh sách -->
-        <div class="p-4">
-            <div id="list-active" class="space-y-3"></div>
-            <div id="list-confirm" class="space-y-3 hidden"></div>
-            <div id="list-pending" class="space-y-3 hidden"></div>
+        <div class="list-container">
+            <div id="list-active"></div>
+            <div id="list-confirm" style="display: none; gap: 12px; flex-direction: column;"></div>
+            <div id="list-pending" style="display: none; gap: 12px; flex-direction: column;"></div>
         </div>
     </div>
 
-    <!-- ================= FLOATING ACTION BUTTON (QR SCAN) ================= -->
-    <button onclick="openQRModal()" id="fabScan" class="hidden fixed bottom-6 right-6 w-16 h-16 navy-bg text-white rounded-full shadow-2xl flex items-center justify-center text-2xl z-40 hover:scale-105 transition-transform">
+    <!-- Nút Quét QR -->
+    <button onclick="openQRModal()" id="fabScan" class="fab-scan" style="display: none;">
         <i class="fa-solid fa-qrcode"></i>
     </button>
 
     <!-- ================= MODAL QUÉT QR ================= -->
-    <div id="qrModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center modal-overlay p-0 sm:p-4">
-        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col max-h-[90vh] animate-slide-up">
-            <div class="p-5 border-b flex justify-between items-center">
-                <h3 class="font-bold text-lg navy-text"><i class="fa-solid fa-qrcode mr-2"></i>Quét QR Khách hàng</h3>
-                <button onclick="closeQRModal()" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500"><i class="fa-solid fa-xmark"></i></button>
+    <div id="qrModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-qrcode" style="margin-right: 6px;"></i> Quét QR</h3>
+                <button onclick="closeQRModal()" class="modal-close"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
-            <div class="p-5 overflow-y-auto">
-                <div id="qr-reader" class="w-full rounded-xl overflow-hidden bg-black mb-4"></div>
-                <div id="qrResult" class="hidden bg-green-50 text-green-700 p-4 rounded-xl mb-4 border border-green-200">
-                    <p class="font-bold text-sm mb-1">Đã quét thành công!</p>
-                    <p id="qrResultText" class="text-xs font-mono break-all"></p>
-                </div>
+            <div id="qr-reader" style="width: 100%; border-radius: var(--radius-md); overflow: hidden; background: #000; margin-bottom: 16px;"></div>
+            
+            <div id="qrResult" style="display: none; background: #ECFDF5; border: 1px solid #A7F3D0; color: #065F46; padding: 12px; border-radius: var(--radius-sm); margin-bottom: 16px;">
+                <p style="font-weight: 700; font-size: 13px; margin-bottom: 4px;">Đã quét thành công!</p>
+                <p id="qrResultText" style="font-size: 11px; font-family: monospace; word-break: break-all;"></p>
+            </div>
+            
+            <div id="tableInputWrap" style="display: none;">
+                <label style="display: block; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 8px;">Số bàn (Bắt buộc)</label>
+                <input type="number" id="inputTableNumber" class="input-field" placeholder="VD: 5" min="1">
+                <div id="tableError" style="color: var(--danger); font-size: 12px; font-weight: 600; margin-top: -8px; margin-bottom: 12px; display: none;"></div>
                 
-                <div id="tableInputWrap" class="hidden">
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Số bàn (Bắt buộc)</label>
-                    <input type="number" id="inputTableNumber" class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2" placeholder="VD: 5" min="1">
-                    <div id="tableError" class="text-red-500 text-xs font-medium mb-4 hidden"></div>
-                    
-                    <div class="flex items-center gap-2 mb-4">
-                        <input type="checkbox" id="chkMergeTable" class="w-4 h-4">
-                        <label for="chkMergeTable" class="text-sm font-medium text-slate-700">Cho phép ghép bàn (nếu bàn đã có khách)</label>
-                    </div>
-
-                    <button onclick="submitQRConfirm()" id="btnSubmitQR" class="btn-primary w-full py-3 rounded-xl font-bold">
-                        Xác nhận
-                    </button>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                    <input type="checkbox" id="chkMergeTable" style="width: 18px; height: 18px; accent-color: var(--navy);">
+                    <label for="chkMergeTable" style="font-size: 13.5px; font-weight: 500;">Cho phép ghép bàn (nếu bàn đã có khách)</label>
                 </div>
+
+                <button onclick="submitQRConfirm()" id="btnSubmitQR" class="btn-sm primary" style="padding: 14px; font-size: 15px;">
+                    Xác nhận
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- ================= TOAST ================= -->
-    <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 rounded-full text-white font-bold text-sm shadow-xl transition-all duration-300 opacity-0 pointer-events-none"></div>
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
 
     <script>
         const CLOUD_FUNCTION_URL = "https://get-upload-url-test-824148866382.asia-southeast1.run.app";
@@ -156,14 +342,11 @@
         let scannedQrContent = null;
         let dashboardInterval = null;
 
-        // ================= HELPERS =================
         function showToast(msg, isSuccess = true) {
             const toast = document.getElementById('toast');
             toast.textContent = msg;
-            toast.className = `fixed top-4 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 rounded-full text-white font-bold text-sm shadow-xl transition-all duration-300 ${isSuccess ? 'bg-green-500' : 'bg-red-500'} opacity-100 pointer-events-none`;
-            setTimeout(() => {
-                toast.className = toast.className.replace('opacity-100', 'opacity-0');
-            }, 3000);
+            toast.className = `toast show ${isSuccess ? 'success' : 'error'}`;
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
         function fmtDateTime(iso) {
@@ -172,7 +355,6 @@
             return d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' - ' + d.toLocaleDateString('vi-VN');
         }
 
-        // ================= AUTH =================
         async function handleLogin() {
             const email = document.getElementById('loginEmail').value.trim();
             if (!email) return showToast('Vui lòng nhập email', false);
@@ -183,9 +365,9 @@
             const errDiv = document.getElementById('loginError');
 
             btn.disabled = true;
-            spinner.classList.remove('hidden');
-            icon.classList.add('hidden');
-            errDiv.classList.add('hidden');
+            spinner.style.display = 'inline-block';
+            icon.style.display = 'none';
+            errDiv.style.display = 'none';
 
             try {
                 const res = await fetch(`${CLOUD_FUNCTION_URL}?action=cafeManagerLogin&email=${encodeURIComponent(email)}`);
@@ -202,24 +384,24 @@
                     localStorage.setItem('pm_cafe_id', cafeId);
                     localStorage.setItem('pm_cafe_name', cafeName);
 
-                    document.getElementById('login-screen').classList.add('hidden');
-                    document.getElementById('dashboard-screen').classList.remove('hidden');
-                    document.getElementById('fabScan').classList.remove('hidden');
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('dashboard-screen').style.display = 'block';
+                    document.getElementById('fabScan').style.display = 'flex';
                     document.getElementById('headerCafeName').textContent = cafeName;
                     
                     loadDashboard();
                     startDashboardPolling();
                 } else {
                     errDiv.textContent = data.message || 'Đăng nhập thất bại';
-                    errDiv.classList.remove('hidden');
+                    errDiv.style.display = 'block';
                 }
             } catch (e) {
                 errDiv.textContent = 'Lỗi kết nối máy chủ';
-                errDiv.classList.remove('hidden');
+                errDiv.style.display = 'block';
             } finally {
                 btn.disabled = false;
-                spinner.classList.add('hidden');
-                icon.classList.remove('hidden');
+                spinner.style.display = 'none';
+                icon.style.display = 'inline-block';
             }
         }
 
@@ -233,61 +415,19 @@
             window.location.reload();
         }
 
-        // ================= DASHBOARD DATA =================
         function switchTab(tab) {
             currentTab = tab;
-            const tabs = ['active', 'confirm', 'pending'];
-            tabs.forEach(t => {
+            ['active', 'confirm', 'pending'].forEach(t => {
                 const btn = document.getElementById('tab-' + t);
                 const list = document.getElementById('list-' + t);
                 if (t === tab) {
-                    btn.className = 'flex-1 py-2 rounded-lg font-bold text-sm bg-blue-100 navy-text transition';
-                    if (list) list.classList.remove('hidden');
+                    btn.classList.add('active');
+                    list.style.display = 'flex';
                 } else {
-                    btn.className = 'flex-1 py-2 rounded-lg font-bold text-sm text-slate-500 transition hover:bg-slate-100';
-                    if (list) list.classList.add('hidden');
+                    btn.classList.remove('active');
+                    list.style.display = 'none';
                 }
             });
-        }
-                        function renderPendingConfirms(confirms) {
-            const container = document.getElementById('list-confirm');
-            if (!confirms || confirms.length === 0) {
-                container.innerHTML = `<div class="text-center text-slate-400 py-10"><i class="fa-solid fa-receipt text-4xl mb-3 opacity-50"></i><p>Không có bill nào chờ xác nhận</p></div>`;
-                return;
-            }
-
-            container.innerHTML = confirms.map(c => {
-                const isExpired = c.confirmation_deadline_ms > 0 && Date.now() > c.confirmation_deadline_ms;
-                
-                return `
-                <div class="card p-4 border-l-4 ${isExpired ? 'border-slate-400' : 'border-orange-500'}">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <div class="font-bold text-slate-800 text-lg">${c.guest_name || 'Khách lẻ'}</div>
-                            <div class="text-xs text-slate-500 mt-1"><i class="fa-regular fa-clock mr-1"></i> Ra: ${fmtDateTime(c.check_out_at)}</div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-xl font-bold" style="color:#1B2B7A;">${c.billable_hours}h</div>
-                            <div class="text-[10px] text-slate-500 font-bold">${Number(c.revenue_amount).toLocaleString('vi-VN')}đ</div>
-                        </div>
-                    </div>
-                    <div class="flex gap-2 mt-3 pt-3 border-t">
-                        <button onclick="submitManagerAction('confirm', '${c.checkin_id}', this)" class="flex-1 btn-primary py-2 text-sm shadow-sm">
-                            <i class="fa-solid fa-check mr-1"></i> Xác nhận Bill
-                        </button>
-                        ${!isExpired ? `
-                        <button onclick="submitManagerAction('undo', '${c.checkin_id}', this)" class="flex-1 btn-outline py-2 text-sm">
-                            <i class="fa-solid fa-rotate-left mr-1"></i> Hoàn tác
-                        </button>
-                        ` : `
-                        <button disabled class="flex-1 bg-slate-100 text-slate-400 py-2 rounded-xl text-sm font-semibold cursor-not-allowed">
-                            Quá hạn hoàn tác
-                        </button>
-                        `}
-                    </div>
-                </div>
-                `;
-            }).join('');
         }
 
         async function loadDashboard() {
@@ -301,7 +441,7 @@
                     document.getElementById('statPending').textContent = data.pending_count;
                     
                     renderActiveCheckins(data.active_checkins);
-                    renderPendingConfirms(data.pending_confirms || []); // 🚨 THÊM DÒNG NÀY
+                    renderPendingConfirms(data.pending_confirms || []);
                     renderPendingBookings(data.pending_bookings);
                 } else if (res.status === 401) {
                     showToast('Phiên đăng nhập hết hạn', false);
@@ -314,35 +454,80 @@
 
         function startDashboardPolling() {
             if (dashboardInterval) clearInterval(dashboardInterval);
-            dashboardInterval = setInterval(loadDashboard, 20000); // 20s/lần
+            dashboardInterval = setInterval(loadDashboard, 20000);
         }
 
         function renderActiveCheckins(checkins) {
             const container = document.getElementById('list-active');
             if (!checkins || checkins.length === 0) {
-                container.innerHTML = `<div class="text-center text-slate-400 py-10"><i class="fa-solid fa-mug-hot text-4xl mb-3 opacity-50"></i><p>Không có khách đang ngồi</p></div>`;
+                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-mug-hot"></i><p>Không có khách đang ngồi</p></div>`;
                 return;
             }
 
             container.innerHTML = checkins.map(c => {
                 const isConfirmed = !!c.verified;
                 return `
-                <div class="card p-4">
-                    <div class="flex justify-between items-start mb-2">
+                <div class="task-item">
+                    <div class="task-header">
                         <div>
-                            <div class="font-bold text-slate-800 text-lg">${c.guest_name || 'Khách lẻ'}</div>
-                            <div class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-chair mr-1"></i> Bàn: <span class="font-bold text-slate-700">${c.table_number || 'Chưa xếp'}</span></div>
+                            <div class="task-title">${c.guest_name || 'Khách lẻ'}</div>
+                            <div class="task-meta">
+                                <span><i class="fa-solid fa-chair"></i> Bàn: <b style="color: var(--text);">${c.table_number || 'Chưa xếp'}</b></span>
+                                <span><i class="fa-regular fa-clock"></i> Vào: ${fmtDateTime(c.check_in_at)}</span>
+                            </div>
                         </div>
-                        <div class="text-right">
-                            <div class="text-xl font-bold ${isConfirmed ? 'text-green-600' : 'text-orange-500'}">${c.elapsed_hours.toFixed(1)}h</div>
-                            <div class="text-[10px] uppercase font-bold ${isConfirmed ? 'text-green-600' : 'text-orange-500'}">${isConfirmed ? 'Đang ngồi' : 'Chờ quét QR'}</div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 20px; font-weight: 800; color: ${isConfirmed ? 'var(--success)' : '#F59E0B'};">
+                                ${c.elapsed_hours.toFixed(1)}h
+                            </div>
+                            <div class="status-text ${isConfirmed ? 'status-active' : 'status-wait'}">
+                                ${isConfirmed ? 'Đang ngồi' : 'Chờ quét'}
+                            </div>
                         </div>
                     </div>
-                    <div class="text-xs text-slate-500 mb-3"><i class="fa-regular fa-clock mr-1"></i> Vào: ${fmtDateTime(c.check_in_at)}</div>
-                    
-                    ${!isConfirmed ? `
-                        <div class="bg-orange-50 text-orange-700 text-xs p-2 rounded-lg text-center font-medium">Khách chưa quét QR vào bàn</div>
-                    ` : ''}
+                </div>
+                `;
+            }).join('');
+        }
+
+        function renderPendingConfirms(confirms) {
+            const container = document.getElementById('list-confirm');
+            if (!confirms || confirms.length === 0) {
+                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-receipt"></i><p>Không có bill nào chờ xác nhận</p></div>`;
+                return;
+            }
+
+            container.innerHTML = confirms.map(c => {
+                const isExpired = c.confirmation_deadline_ms > 0 && Date.now() > c.confirmation_deadline_ms;
+                
+                return `
+                <div class="task-item">
+                    <div class="task-header">
+                        <div>
+                            <div class="task-title">${c.guest_name || 'Khách lẻ'}</div>
+                            <div class="task-meta">
+                                <span><i class="fa-regular fa-clock"></i> Ra: ${fmtDateTime(c.check_out_at)}</span>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 20px; font-weight: 800; color: var(--navy);">${c.billable_hours}h</div>
+                            <div style="font-size: 11px; font-weight: 600; color: var(--muted);">${Number(c.revenue_amount).toLocaleString('vi-VN')}đ</div>
+                        </div>
+                    </div>
+                    <div class="btn-actions">
+                        <button onclick="submitManagerAction('confirm', '${c.checkin_id}', this)" class="btn-sm primary">
+                            <i class="fa-solid fa-check"></i> Xác nhận
+                        </button>
+                        ${!isExpired ? `
+                        <button onclick="submitManagerAction('undo', '${c.checkin_id}', this)" class="btn-sm outline">
+                            <i class="fa-solid fa-rotate-left"></i> Hoàn tác
+                        </button>
+                        ` : `
+                        <button disabled class="btn-sm disabled">
+                            Quá hạn
+                        </button>
+                        `}
+                    </div>
                 </div>
                 `;
             }).join('');
@@ -351,68 +536,31 @@
         function renderPendingBookings(bookings) {
             const container = document.getElementById('list-pending');
             if (!bookings || bookings.length === 0) {
-                container.innerHTML = `<div class="text-center text-slate-400 py-10"><i class="fa-regular fa-calendar-xmark text-4xl mb-3 opacity-50"></i><p>Không có booking chờ</p></div>`;
+                container.innerHTML = `<div class="empty-state"><i class="fa-regular fa-calendar-xmark"></i><p>Không có booking chờ</p></div>`;
                 return;
             }
 
             container.innerHTML = bookings.map(b => `
-                <div class="card p-4 border-l-4 border-blue-500">
-                    <div class="font-bold text-slate-800">${b.guest_name || 'Khách đặt trước'}</div>
-                    <div class="text-sm text-slate-600 mt-1"><i class="fa-regular fa-clock mr-1"></i> ${fmtDateTime(b.start_time_iso)}</div>
-                    <div class="text-xs text-slate-500 mt-1">${b.note ? b.note : ''}</div>
-                    
-                    <div class="flex gap-2 mt-3 pt-3 border-t">
-                        <button onclick="submitBookingAction('confirm', '${b.booking_id}', this)" class="flex-1 btn-primary py-2 text-sm shadow-sm">
-                            <i class="fa-solid fa-check mr-1"></i> Xác nhận
+                <div class="task-item">
+                    <div class="task-title">${b.guest_name || 'Khách đặt trước'}</div>
+                    <div class="task-meta">
+                        <span><i class="fa-regular fa-clock"></i> Hẹn: ${fmtDateTime(b.start_time_iso)}</span>
+                        ${b.note ? `<span><i class="fa-regular fa-note-sticky"></i> ${b.note}</span>` : ''}
+                    </div>
+                    <div class="btn-actions">
+                        <button onclick="submitBookingAction('confirm', '${b.booking_id}', this)" class="btn-sm primary">
+                            <i class="fa-solid fa-check"></i> Xác nhận
                         </button>
-                        <button onclick="submitBookingAction('cancel', '${b.booking_id}', this)" class="flex-1 btn-danger py-2 text-sm">
-                            <i class="fa-solid fa-xmark mr-1"></i> Hủy
+                        <button onclick="submitBookingAction('cancel', '${b.booking_id}', this)" class="btn-sm danger">
+                            <i class="fa-solid fa-xmark"></i> Hủy
                         </button>
                     </div>
                 </div>
             `).join('');
         }
-        async function submitBookingAction(action, bookingId, btn) {
-            if (action === 'cancel' && !confirm('Bạn có chắc muốn hủy booking này?')) return;
 
-            const origHTML = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-
-            try {
-                const isConfirm = action === 'confirm';
-                const res = await fetch(CLOUD_FUNCTION_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: isConfirm ? 'cafeBookingConfirm' : 'cafeBookingCancel',
-                        bookingId: bookingId,
-                        managerId: managerId,
-                        managerToken: managerToken,
-                        cancelledBy: 'Manager',
-                        reason: 'Manager hủy từ Dashboard'
-                    })
-                });
-                const data = await res.json();
-
-                if (data.status === 200) {
-                    showToast(isConfirm ? 'Đã xác nhận booking' : 'Đã hủy booking', true);
-                    loadDashboard();
-                } else {
-                    showToast(data.message || 'Thao tác thất bại', false);
-                    btn.disabled = false;
-                    btn.innerHTML = origHTML;
-                }
-            } catch (e) {
-                showToast('Lỗi kết nối', false);
-                btn.disabled = false;
-                btn.innerHTML = origHTML;
-            }
-        }
-
-        // ================= ACTIONS (CONFIRM/UNDO) =================
         async function submitManagerAction(action, checkinId, btn) {
-            if (action === 'undo' && !confirm('Bạn có chắc muốn hoàn tác check-out này? Khách sẽ phải check-out lại.')) return;
+            if (action === 'undo' && !confirm('Bạn có chắc muốn hoàn tác check-out này?')) return;
 
             const origHTML = btn.innerHTML;
             btn.disabled = true;
@@ -420,13 +568,8 @@
 
             try {
                 const url = action === 'confirm' ? 'cafeManagerConfirm' : 'cafeManagerUndo';
-                const payload = {
-                    action: url,
-                    checkinId: checkinId,
-                    managerId: managerId,
-                    managerToken: managerToken
-                };
-                if (action === 'undo') payload.reason = 'Manager hoàn tác từ Dashboard';
+                const payload = { action: url, checkinId, managerId, managerToken };
+                if (action === 'undo') payload.reason = 'Manager hoàn tác';
 
                 const res = await fetch(CLOUD_FUNCTION_URL, {
                     method: 'POST',
@@ -450,13 +593,51 @@
             }
         }
 
+        async function submitBookingAction(action, bookingId, btn) {
+            if (action === 'cancel' && !confirm('Bạn có chắc muốn hủy booking này?')) return;
+
+            const origHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+            try {
+                const isConfirm = action === 'confirm';
+                const res = await fetch(CLOUD_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: isConfirm ? 'cafeBookingConfirm' : 'cafeBookingCancel',
+                        bookingId: bookingId,
+                        managerId: managerId,
+                        managerToken: managerToken,
+                        cancelledBy: 'Manager',
+                        reason: 'Manager hủy'
+                    })
+                });
+                const data = await res.json();
+
+                if (data.status === 200) {
+                    showToast(isConfirm ? 'Đã xác nhận' : 'Đã hủy', true);
+                    loadDashboard();
+                } else {
+                    showToast(data.message || 'Thao tác thất bại', false);
+                    btn.disabled = false;
+                    btn.innerHTML = origHTML;
+                }
+            } catch (e) {
+                showToast('Lỗi kết nối', false);
+                btn.disabled = false;
+                btn.innerHTML = origHTML;
+            }
+        }
+
         // ================= QR SCANNER =================
         function openQRModal() {
-            document.getElementById('qrModal').classList.remove('hidden');
-            document.getElementById('tableInputWrap').classList.add('hidden');
-            document.getElementById('qrResult').classList.add('hidden');
+            document.getElementById('qrModal').classList.add('active');
+            document.getElementById('tableInputWrap').style.display = 'none';
+            document.getElementById('qrResult').style.display = 'none';
             document.getElementById('inputTableNumber').value = '';
-            document.getElementById('tableError').classList.add('hidden');
+            document.getElementById('tableError').style.display = 'none';
             scannedQrContent = null;
 
             qrScanner = new Html5Qrcode("qr-reader");
@@ -465,7 +646,7 @@
                 { fps: 10, qrbox: { width: 250, height: 250 } },
                 onQRScanSuccess
             ).catch(err => {
-                showToast('Không mở được Camera: ' + err, false);
+                showToast('Lỗi Camera: ' + err, false);
                 closeQRModal();
             });
         }
@@ -475,19 +656,15 @@
                 try { await qrScanner.stop(); qrScanner.clear(); } catch(e){}
                 qrScanner = null;
             }
-            document.getElementById('qrModal').classList.add('hidden');
+            document.getElementById('qrModal').classList.remove('active');
         }
 
         function onQRScanSuccess(decodedText) {
-            // Tạm dừng quét để xử lý
             if (qrScanner) qrScanner.pause(true);
-            
             scannedQrContent = decodedText;
             document.getElementById('qrResultText').textContent = decodedText;
-            document.getElementById('qrResult').classList.remove('hidden');
-            document.getElementById('tableInputWrap').classList.remove('hidden');
-            
-            // Focus vào ô nhập bàn
+            document.getElementById('qrResult').style.display = 'block';
+            document.getElementById('tableInputWrap').style.display = 'block';
             document.getElementById('inputTableNumber').focus();
         }
 
@@ -497,10 +674,10 @@
             
             if (!tableNum || parseInt(tableNum) < 1) {
                 errDiv.textContent = 'Vui lòng nhập số bàn hợp lệ (>=1)';
-                errDiv.classList.remove('hidden');
+                errDiv.style.display = 'block';
                 return;
             }
-            errDiv.classList.add('hidden');
+            errDiv.style.display = 'none';
 
             const btn = document.getElementById('btnSubmitQR');
             const origHTML = btn.innerHTML;
@@ -529,34 +706,32 @@
                     closeQRModal();
                     loadDashboard();
                 } else if (data.status === 409 && data.code === 'TABLE_OCCUPIED') {
-                    // Bàn đã có khách -> Hỏi ghép bàn
                     if (confirm(`${data.message}\n\nBạn có muốn ghép bàn không?`)) {
                         document.getElementById('chkMergeTable').checked = true;
-                        submitQRConfirm(); // Gọi lại hàm này với flag merge=true
+                        submitQRConfirm();
                     } else {
                         btn.disabled = false;
                         btn.innerHTML = origHTML;
                     }
                 } else {
                     errDiv.textContent = data.message || 'Lỗi xác nhận';
-                    errDiv.classList.remove('hidden');
+                    errDiv.style.display = 'block';
                     btn.disabled = false;
                     btn.innerHTML = origHTML;
                 }
             } catch (e) {
                 errDiv.textContent = 'Lỗi kết nối máy chủ';
-                errDiv.classList.remove('hidden');
+                errDiv.style.display = 'block';
                 btn.disabled = false;
                 btn.innerHTML = origHTML;
             }
         }
 
-        // ================= INIT =================
         window.onload = () => {
             if (managerToken && managerId && cafeName) {
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('dashboard-screen').classList.remove('hidden');
-                document.getElementById('fabScan').classList.remove('hidden');
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('dashboard-screen').style.display = 'block';
+                document.getElementById('fabScan').style.display = 'flex';
                 document.getElementById('headerCafeName').textContent = cafeName;
                 loadDashboard();
                 startDashboardPolling();
