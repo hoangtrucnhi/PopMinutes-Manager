@@ -9,14 +9,26 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Be Vietnam Pro', sans-serif; background-color: #F8FAFC; }
-        .navy-bg { background-color: #1B2B7A; }
-        .navy-text { color: #1B2B7A; }
-        .card { background: white; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #E2E8F0; }
-        .btn-primary { background: #1B2B7A; color: white; transition: all 0.2s; }
+        body { font-family: 'Be Vietnam Pro', sans-serif; background-color: #F8FAFC; color: #0F172A; }
+        
+        /* Đồng bộ giống app Sales */
+        .card { background: #FFFFFF; border-radius: 16px; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04); border: 1px solid #E2E8F0; }
+        
+        .btn-primary { background: #1B2B7A; color: #FFFFFF; border-radius: 12px; transition: all 0.2s; }
         .btn-primary:hover { background: #131F5C; }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-        .modal-overlay { background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); }
+        .btn-primary:active { transform: scale(0.98); }
+        
+        .btn-success { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; border-radius: 12px; transition: all 0.2s; font-weight: 600; }
+        .btn-success:hover { background: #ECFDF5; }
+        
+        .btn-danger { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; border-radius: 12px; transition: all 0.2s; font-weight: 600; }
+        .btn-danger:hover { background: #FEE2E2; }
+        
+        .btn-outline { background: #FFFFFF; color: #0F172A; border: 1px solid #CBD5E1; border-radius: 12px; transition: all 0.2s; font-weight: 600; }
+        .btn-outline:hover { border-color: #1B2B7A; color: #1B2B7A; }
+
+        .modal-overlay { background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(8px); }
+        
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
@@ -237,31 +249,45 @@
                 }
             });
         }
-                function renderPendingConfirms(confirms) {
+                        function renderPendingConfirms(confirms) {
             const container = document.getElementById('list-confirm');
             if (!confirms || confirms.length === 0) {
                 container.innerHTML = `<div class="text-center text-slate-400 py-10"><i class="fa-solid fa-receipt text-4xl mb-3 opacity-50"></i><p>Không có bill nào chờ xác nhận</p></div>`;
                 return;
             }
 
-            container.innerHTML = confirms.map(c => `
-                <div class="card p-4 border-l-4 border-orange-500">
+            container.innerHTML = confirms.map(c => {
+                const isExpired = c.confirmation_deadline_ms > 0 && Date.now() > c.confirmation_deadline_ms;
+                
+                return `
+                <div class="card p-4 border-l-4 ${isExpired ? 'border-slate-400' : 'border-orange-500'}">
                     <div class="flex justify-between items-start mb-2">
                         <div>
                             <div class="font-bold text-slate-800 text-lg">${c.guest_name || 'Khách lẻ'}</div>
                             <div class="text-xs text-slate-500 mt-1"><i class="fa-regular fa-clock mr-1"></i> Ra: ${fmtDateTime(c.check_out_at)}</div>
                         </div>
                         <div class="text-right">
-                            <div class="text-xl font-bold navy-text">${c.billable_hours}h</div>
+                            <div class="text-xl font-bold" style="color:#1B2B7A;">${c.billable_hours}h</div>
                             <div class="text-[10px] text-slate-500 font-bold">${Number(c.revenue_amount).toLocaleString('vi-VN')}đ</div>
                         </div>
                     </div>
                     <div class="flex gap-2 mt-3 pt-3 border-t">
-                        <button onclick="submitManagerAction('confirm', '${c.checkin_id}', this)" class="flex-1 bg-green-500 text-white py-2 rounded-lg font-bold text-sm shadow hover:bg-green-600"><i class="fa-solid fa-check mr-1"></i> Xác nhận Bill</button>
-                        <button onclick="submitManagerAction('undo', '${c.checkin_id}', this)" class="flex-1 bg-orange-50 text-orange-700 py-2 rounded-lg font-bold text-sm border border-orange-200 hover:bg-orange-100"><i class="fa-solid fa-rotate-left mr-1"></i> Hoàn tác</button>
+                        <button onclick="submitManagerAction('confirm', '${c.checkin_id}', this)" class="flex-1 btn-primary py-2 text-sm shadow-sm">
+                            <i class="fa-solid fa-check mr-1"></i> Xác nhận Bill
+                        </button>
+                        ${!isExpired ? `
+                        <button onclick="submitManagerAction('undo', '${c.checkin_id}', this)" class="flex-1 btn-outline py-2 text-sm">
+                            <i class="fa-solid fa-rotate-left mr-1"></i> Hoàn tác
+                        </button>
+                        ` : `
+                        <button disabled class="flex-1 bg-slate-100 text-slate-400 py-2 rounded-xl text-sm font-semibold cursor-not-allowed">
+                            Quá hạn hoàn tác
+                        </button>
+                        `}
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         async function loadDashboard() {
@@ -334,8 +360,54 @@
                     <div class="font-bold text-slate-800">${b.guest_name || 'Khách đặt trước'}</div>
                     <div class="text-sm text-slate-600 mt-1"><i class="fa-regular fa-clock mr-1"></i> ${fmtDateTime(b.start_time_iso)}</div>
                     <div class="text-xs text-slate-500 mt-1">${b.note ? b.note : ''}</div>
+                    
+                    <div class="flex gap-2 mt-3 pt-3 border-t">
+                        <button onclick="submitBookingAction('confirm', '${b.booking_id}', this)" class="flex-1 btn-primary py-2 text-sm shadow-sm">
+                            <i class="fa-solid fa-check mr-1"></i> Xác nhận
+                        </button>
+                        <button onclick="submitBookingAction('cancel', '${b.booking_id}', this)" class="flex-1 btn-danger py-2 text-sm">
+                            <i class="fa-solid fa-xmark mr-1"></i> Hủy
+                        </button>
+                    </div>
                 </div>
             `).join('');
+        }
+        async function submitBookingAction(action, bookingId, btn) {
+            if (action === 'cancel' && !confirm('Bạn có chắc muốn hủy booking này?')) return;
+
+            const origHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+            try {
+                const isConfirm = action === 'confirm';
+                const res = await fetch(CLOUD_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: isConfirm ? 'cafeBookingConfirm' : 'cafeBookingCancel',
+                        bookingId: bookingId,
+                        managerId: managerId,
+                        managerToken: managerToken,
+                        cancelledBy: 'Manager',
+                        reason: 'Manager hủy từ Dashboard'
+                    })
+                });
+                const data = await res.json();
+
+                if (data.status === 200) {
+                    showToast(isConfirm ? 'Đã xác nhận booking' : 'Đã hủy booking', true);
+                    loadDashboard();
+                } else {
+                    showToast(data.message || 'Thao tác thất bại', false);
+                    btn.disabled = false;
+                    btn.innerHTML = origHTML;
+                }
+            } catch (e) {
+                showToast('Lỗi kết nối', false);
+                btn.disabled = false;
+                btn.innerHTML = origHTML;
+            }
         }
 
         // ================= ACTIONS (CONFIRM/UNDO) =================
