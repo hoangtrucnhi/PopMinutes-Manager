@@ -301,20 +301,30 @@
                             <option value="7" selected>7 ngày qua</option>
                             <option value="30">30 ngày qua</option>
                         </select>
-                        <select id="historyPayStatus" class="input-field" onchange="loadHistoryRevenue()" style="margin-bottom: 0; flex: 1;">
+                        <select id="historyPayStatus" class="input-field" onchange="filterAndRenderHistory()" style="margin-bottom: 0; flex: 1;">
                             <option value="all">Tất cả Bill</option>
-                            <option value="unpaid" selected>Chưa thu tiền</option>
-                            <option value="paid">Đã thu tiền</option>
+                            <option value="unpaid" selected>Chưa thanh toán</option>
+                            <option value="paid">Đã thanh toán</option>
                         </select>
                     </div>
                     
-                    <div class="task-item" style="background: var(--navy-pale); border-color: var(--navy-light); text-align: center;">
-                        <p style="font-size: 12px; font-weight: 700; color: var(--navy); text-transform: uppercase;">Tổng doanh thu</p>
-                        <h2 id="totalRevenue" style="font-size: 28px; font-weight: 800; color: var(--navy); margin: 4px 0;">0đ</h2>
-                        <p id="totalHours" style="font-size: 13px; color: var(--muted); font-weight: 600;">0 giờ • 0 lượt khách</p>
+                    <!-- 3 Thẻ Thống kê -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div class="task-item" style="padding: 12px; text-align: center; background: var(--navy-pale); border: 1px solid var(--navy-light);">
+                            <p style="font-size: 11px; font-weight: 700; color: var(--navy); text-transform: uppercase;">Tổng doanh thu</p>
+                            <h3 id="statTotalRevenue" style="font-size: 20px; font-weight: 800; color: var(--navy); margin: 4px 0;">0đ</h3>
+                        </div>
+                        <div class="task-item" style="padding: 12px; text-align: center; background: #FEF2F2; border: 1px solid #FECACA;">
+                            <p style="font-size: 11px; font-weight: 700; color: #991B1B; text-transform: uppercase;">Chưa thanh toán</p>
+                            <h3 id="statUnpaid" style="font-size: 20px; font-weight: 800; color: #991B1B; margin: 4px 0;">0đ</h3>
+                        </div>
+                    </div>
+                    <div class="task-item" style="padding: 12px; text-align: center; background: #ECFDF5; border: 1px solid #A7F3D0;">
+                        <p style="font-size: 11px; font-weight: 700; color: #065F46; text-transform: uppercase;">PopMinutes đã thanh toán</p>
+                        <h3 id="statPaid" style="font-size: 20px; font-weight: 800; color: #065F46; margin: 4px 0;">0đ</h3>
                     </div>
                     
-                    <div id="historyList" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                    <div id="historyList" style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;"></div>
                 </div>
             </div>
         </div>
@@ -618,6 +628,8 @@
         }
                 let allRevenueData = []; // Biến toàn cục lưu data để lọc
 
+                let allRevenueData = []; // Biến toàn cục lưu data để lọc
+
         async function loadHistoryRevenue() {
             const days = parseInt(document.getElementById('historyRange').value) || 7;
             const fromMs = Date.now() - days * 24 * 60 * 60 * 1000;
@@ -646,27 +658,35 @@
             const filterStatus = document.getElementById('historyPayStatus').value;
             const listContainer = document.getElementById('historyList');
             
+            // 1. Tính toán số liệu (luôn tính trên TOÀN BỘ data của khoảng thời gian)
+            let totalRev = 0, totalUnpaid = 0, totalPaid = 0;
+            allRevenueData.forEach(c => {
+                const amt = Number(c.revenue_amount) || 0;
+                totalRev += amt;
+                if ((c.payment_status || 'unpaid') === 'paid') {
+                    totalPaid += amt;
+                } else {
+                    totalUnpaid += amt;
+                }
+            });
+
+            // Update UI stats
+            document.getElementById('statTotalRevenue').textContent = totalRev.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('statUnpaid').textContent = totalUnpaid.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('statPaid').textContent = totalPaid.toLocaleString('vi-VN') + 'đ';
+
+            // 2. Lọc danh sách hiển thị
             let filtered = allRevenueData;
             if (filterStatus !== 'all') {
                 filtered = allRevenueData.filter(c => (c.payment_status || 'unpaid') === filterStatus);
             }
-
-            // Tính lại tổng tiền theo bộ lọc (để đối soát chính xác)
-            let totalRev = 0;
-            let totalHrs = 0;
-            filtered.forEach(c => {
-                totalRev += Number(c.revenue_amount) || 0;
-                totalHrs += Number(c.billable_hours) || 0;
-            });
-
-            document.getElementById('totalRevenue').textContent = totalRev.toLocaleString('vi-VN') + 'đ';
-            document.getElementById('totalHours').textContent = `${Math.round(totalHrs * 10)/10} giờ • ${filtered.length} lượt khách`;
 
             if (filtered.length === 0) {
                 listContainer.innerHTML = `<div class="empty-state"><i class="fa-solid fa-receipt"></i><p>Không có giao dịch nào</p></div>`;
                 return;
             }
 
+            // 3. Render từng item (Không có nút bấm thu tiền, chỉ có badge)
             listContainer.innerHTML = filtered.map(c => {
                 const isPaid = (c.payment_status || 'unpaid') === 'paid';
                 return `
@@ -685,17 +705,14 @@
                         </div>
                     </div>
                     
-                    <div class="btn-actions">
-                        ${!isPaid ? `
-                            <div style="flex:1; display:flex; align-items:center;">
-                                <span style="background:#FEF2F2; color:#991B1B; padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700;">CHƯA THU TIỀN</span>
+                    <div class="btn-actions" style="justify-content: flex-start;">
+                        ${isPaid ? `
+                            <div style="display: flex; align-items: center; gap: 6px; color: #065F46; font-size: 12px; font-weight: 700; background: #ECFDF5; padding: 6px 12px; border-radius: 8px; border: 1px solid #A7F3D0;">
+                                <i class="fa-solid fa-circle-check"></i> Đã thanh toán
                             </div>
-                            <button onclick="submitMarkPaid('${c.checkin_id}', this)" class="btn-sm primary" style="flex: 0 0 auto; padding: 8px 16px;">
-                                <i class="fa-solid fa-check"></i> Xác nhận đã thu
-                            </button>
                         ` : `
-                            <div style="width: 100%; display: flex; align-items: center; gap: 6px; color: var(--success); font-size: 12px; font-weight: 700;">
-                                <i class="fa-solid fa-circle-check"></i> Đã thu tiền
+                            <div style="display: flex; align-items: center; gap: 6px; color: #991B1B; font-size: 12px; font-weight: 700; background: #FEF2F2; padding: 6px 12px; border-radius: 8px; border: 1px solid #FECACA;">
+                                <i class="fa-solid fa-clock"></i> Chưa thanh toán
                             </div>
                         `}
                     </div>
@@ -703,43 +720,7 @@
                 `;
             }).join('');
         }
-        async function submitMarkPaid(checkinId, btn) {
-            if (!confirm('Xác nhận đã thu đủ tiền cho bill này?')) return;
-
-            const origHTML = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-
-            try {
-                const res = await fetch(CLOUD_FUNCTION_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'cafeManagerMarkPaid',
-                        checkinId: checkinId,
-                        managerId: managerId,
-                        managerToken: managerToken
-                    })
-                });
-                const data = await res.json();
-
-                if (data.status === 200) {
-                    showToast('Đã xác nhận thu tiền', true);
-                    // Cập nhật lại UI ngay lập tức không cần gọi lại API
-                    const item = allRevenueData.find(x => x.checkin_id === checkinId);
-                    if (item) item.payment_status = 'paid';
-                    filterAndRenderHistory();
-                } else {
-                    showToast(data.message || 'Lỗi xác nhận', false);
-                    btn.disabled = false;
-                    btn.innerHTML = origHTML;
-                }
-            } catch (e) {
-                showToast('Lỗi kết nối', false);
-                btn.disabled = false;
-                btn.innerHTML = origHTML;
-            }
-        }
+        
         async function submitManagerAction(action, checkinId, btn) {
             if (action === 'undo' && !confirm('Bạn có chắc muốn hoàn tác check-out này?')) return;
 
