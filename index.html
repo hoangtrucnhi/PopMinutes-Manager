@@ -276,18 +276,21 @@
             </div>
         </header>
 
-        <!-- Tabs -->
-        <div class="task-tabs">
-            <button onclick="switchTab('active')" id="tab-active" class="task-tab active">Đang ngồi</button>
-            <button onclick="switchTab('confirm')" id="tab-confirm" class="task-tab">Chờ Bill</button>
-            <button onclick="switchTab('pending')" id="tab-pending" class="task-tab">Chờ tới</button>
-        </div>
+        <!-- Bao bọc tất cả vào 1 khung có padding chung -->
+        <div style="padding: 20px 20px 100px;">
+            <!-- Tabs -->
+            <div class="task-tabs" style="margin: 0 0 16px 0; width: 100%;">
+                <button onclick="switchTab('active')" id="tab-active" class="task-tab active">Đang ngồi</button>
+                <button onclick="switchTab('confirm')" id="tab-confirm" class="task-tab">Chờ Bill</button>
+                <button onclick="switchTab('pending')" id="tab-pending" class="task-tab">Chờ tới</button>
+            </div>
 
-        <!-- Danh sách -->
-        <div class="list-container">
-            <div id="list-active"></div>
-            <div id="list-confirm" style="display: none; gap: 12px; flex-direction: column;"></div>
-            <div id="list-pending" style="display: none; gap: 12px; flex-direction: column;"></div>
+            <!-- Danh sách -->
+            <div class="list-container" style="padding: 0; display: flex; flex-direction: column; gap: 12px;">
+                <div id="list-active"></div>
+                <div id="list-confirm" style="display: none; flex-direction: column; gap: 12px;"></div>
+                <div id="list-pending" style="display: none; flex-direction: column; gap: 12px;"></div>
+            </div>
         </div>
     </div>
 
@@ -542,7 +545,7 @@
             }
 
             container.innerHTML = bookings.map(b => {
-                const isConfirmed = b.status === 'confirmed'; // 🚨 Kiểm tra trạng thái
+                const isConfirmed = b.status === 'confirmed';
                 
                 return `
                 <div class="task-item">
@@ -555,11 +558,11 @@
                             </div>
                         </div>
                         ${isConfirmed ? `
-                            <div style="color: var(--success); font-size: 11px; font-weight: 800; text-transform: uppercase;">
+                            <div style="color: var(--success); font-size: 11px; font-weight: 800; text-transform: uppercase; text-align: right;">
                                 <i class="fa-solid fa-check-circle"></i> Đã xác nhận
                             </div>
                         ` : `
-                            <div style="color: #F59E0B; font-size: 11px; font-weight: 800; text-transform: uppercase;">
+                            <div style="color: #F59E0B; font-size: 11px; font-weight: 800; text-transform: uppercase; text-align: right;">
                                 <i class="fa-solid fa-hourglass-half"></i> Chờ duyệt
                             </div>
                         `}
@@ -570,10 +573,14 @@
                             <button onclick="submitBookingAction('confirm', '${b.booking_id}', this)" class="btn-sm primary">
                                 <i class="fa-solid fa-check"></i> Xác nhận
                             </button>
-                        ` : ''}
-                        <button onclick="submitBookingAction('cancel', '${b.booking_id}', this)" class="btn-sm ${isConfirmed ? 'outline' : 'danger'}">
-                            <i class="fa-solid fa-xmark"></i> Hủy
-                        </button>
+                            <button onclick="submitBookingAction('cancel', '${b.booking_id}', this)" class="btn-sm danger">
+                                <i class="fa-solid fa-xmark"></i> Hủy
+                            </button>
+                        ` : `
+                            <div style="width: 100%; text-align: center; font-size: 12.5px; color: var(--muted); padding: 10px; background: #F8FAFC; border-radius: var(--radius-sm);">
+                                Quán không thể hủy sau khi đã xác nhận.
+                            </div>
+                        `}
                     </div>
                 </div>
                 `;
