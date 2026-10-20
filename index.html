@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PopMinutes Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Be Vietnam Pro', sans-serif; background-color: #F8FAFC; }
+        .navy-bg { background-color: #1B2B7A; }
+        .navy-text { color: #1B2B7A; }
+        .card { background: white; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #E2E8F0; }
+        .btn-primary { background: #1B2B7A; color: white; transition: all 0.2s; }
+        .btn-primary:hover { background: #131F5C; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .modal-overlay { background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- ================= LOGIN SCREEN ================= -->
+    <div id="login-screen" class="min-h-screen flex flex-col justify-center items-center p-6">
+        <div class="w-full max-w-md">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 navy-bg rounded-2xl mx-auto flex items-center justify-center text-white text-3xl mb-4 shadow-lg">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+                <h1 class="text-2xl font-bold navy-text">PopMinutes Manager</h1>
+                <p class="text-slate-500 mt-2 text-sm">Đăng nhập để quản lý quán</p>
+            </div>
+            
+            <div class="card p-6">
+                <div class="mb-4">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Email Manager</label>
+                    <input type="email" id="loginEmail" class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="manager@highlands.vn">
+                </div>
+                <div id="loginError" class="text-red-500 text-sm font-medium mb-4 hidden"></div>
+                <button onclick="handleLogin()" id="loginBtn" class="btn-primary w-full py-3 rounded-xl font-bold flex justify-center items-center gap-2">
+                    <span>Đăng nhập</span>
+                    <i class="fa-solid fa-arrow-right-to-bracket" id="loginIcon"></i>
+                    <i class="fa-solid fa-spinner fa-spin hidden" id="loginSpinner"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= DASHBOARD SCREEN ================= -->
+    <div id="dashboard-screen" class="hidden pb-24">
+        <!-- Header -->
+        <header class="navy-bg text-white p-5 rounded-b-3xl shadow-lg sticky top-0 z-10">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <p class="text-blue-200 text-xs font-semibold uppercase tracking-wider">Quán hiện tại</p>
+                    <h2 id="headerCafeName" class="text-xl font-bold">Đang tải...</h2>
+                </div>
+                <button onclick="handleLogout()" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </button>
+            </div>
+            <div class="flex gap-4">
+                <div class="bg-white/10 rounded-xl p-3 flex-1 text-center">
+                    <p class="text-xs text-blue-200">Đang ngồi</p>
+                    <p id="statActive" class="text-2xl font-bold">0</p>
+                </div>
+                <div class="bg-white/10 rounded-xl p-3 flex-1 text-center">
+                    <p class="text-xs text-blue-200">Chờ tới</p>
+                    <p id="statPending" class="text-2xl font-bold">0</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Tabs -->
+        <div class="flex px-4 mt-4 gap-2">
+            <button onclick="switchTab('active')" id="tab-active" class="flex-1 py-2 rounded-lg font-bold text-sm bg-blue-100 navy-text transition">Đang ngồi</button>
+            <button onclick="switchTab('pending')" id="tab-pending" class="flex-1 py-2 rounded-lg font-bold text-sm text-slate-500 transition hover:bg-slate-100">Chờ tới</button>
+        </div>
+
+        <!-- Danh sách -->
+        <div class="p-4">
+            <!-- Active Check-ins -->
+            <div id="list-active" class="space-y-3">
+                <div class="text-center text-slate-400 py-10"><i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i><p>Đang tải dữ liệu...</p></div>
+            </div>
+            
+            <!-- Pending Bookings -->
+            <div id="list-pending" class="space-y-3 hidden">
+                <!-- Rendered by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= FLOATING ACTION BUTTON (QR SCAN) ================= -->
+    <button onclick="openQRModal()" id="fabScan" class="hidden fixed bottom-6 right-6 w-16 h-16 navy-bg text-white rounded-full shadow-2xl flex items-center justify-center text-2xl z-40 hover:scale-105 transition-transform">
+        <i class="fa-solid fa-qrcode"></i>
+    </button>
+
+    <!-- ================= MODAL QUÉT QR ================= -->
+    <div id="qrModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center modal-overlay p-0 sm:p-4">
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col max-h-[90vh] animate-slide-up">
+            <div class="p-5 border-b flex justify-between items-center">
+                <h3 class="font-bold text-lg navy-text"><i class="fa-solid fa-qrcode mr-2"></i>Quét QR Khách hàng</h3>
+                <button onclick="closeQRModal()" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="p-5 overflow-y-auto">
+                <div id="qr-reader" class="w-full rounded-xl overflow-hidden bg-black mb-4"></div>
+                <div id="qrResult" class="hidden bg-green-50 text-green-700 p-4 rounded-xl mb-4 border border-green-200">
+                    <p class="font-bold text-sm mb-1">Đã quét thành công!</p>
+                    <p id="qrResultText" class="text-xs font-mono break-all"></p>
+                </div>
+                
+                <div id="tableInputWrap" class="hidden">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Số bàn (Bắt buộc)</label>
+                    <input type="number" id="inputTableNumber" class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2" placeholder="VD: 5" min="1">
+                    <div id="tableError" class="text-red-500 text-xs font-medium mb-4 hidden"></div>
+                    
+                    <div class="flex items-center gap-2 mb-4">
+                        <input type="checkbox" id="chkMergeTable" class="w-4 h-4">
+                        <label for="chkMergeTable" class="text-sm font-medium text-slate-700">Cho phép ghép bàn (nếu bàn đã có khách)</label>
+                    </div>
+
+                    <button onclick="submitQRConfirm()" id="btnSubmitQR" class="btn-primary w-full py-3 rounded-xl font-bold">
+                        Xác nhận
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= TOAST ================= -->
+    <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 rounded-full text-white font-bold text-sm shadow-xl transition-all duration-300 opacity-0 pointer-events-none"></div>
+
+    <script>
+        const CLOUD_FUNCTION_URL = "https://get-upload-url-test-824148866382.asia-southeast1.run.app";
+        let managerToken = localStorage.getItem('pm_manager_token') || '';
+        let managerId = localStorage.getItem('pm_manager_id') || '';
+        let cafeId = localStorage.getItem('pm_cafe_id') || '';
+        let cafeName = localStorage.getItem('pm_cafe_name') || '';
+        
+        let currentTab = 'active';
+        let qrScanner = null;
+        let scannedQrContent = null;
+        let dashboardInterval = null;
+
+        // ================= HELPERS =================
+        function showToast(msg, isSuccess = true) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = `fixed top-4 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 rounded-full text-white font-bold text-sm shadow-xl transition-all duration-300 ${isSuccess ? 'bg-green-500' : 'bg-red-500'} opacity-100 pointer-events-none`;
+            setTimeout(() => {
+                toast.className = toast.className.replace('opacity-100', 'opacity-0');
+            }, 3000);
+        }
+
+        function fmtDateTime(iso) {
+            if (!iso) return '—';
+            const d = new Date(iso);
+            return d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' - ' + d.toLocaleDateString('vi-VN');
+        }
+
+        // ================= AUTH =================
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            if (!email) return showToast('Vui lòng nhập email', false);
+
+            const btn = document.getElementById('loginBtn');
+            const spinner = document.getElementById('loginSpinner');
+            const icon = document.getElementById('loginIcon');
+            const errDiv = document.getElementById('loginError');
+
+            btn.disabled = true;
+            spinner.classList.remove('hidden');
+            icon.classList.add('hidden');
+            errDiv.classList.add('hidden');
+
+            try {
+                const res = await fetch(`${CLOUD_FUNCTION_URL}?action=cafeManagerLogin&email=${encodeURIComponent(email)}`);
+                const data = await res.json();
+
+                if (data.status === 200) {
+                    managerToken = data.manager_token;
+                    managerId = data.manager.manager_id;
+                    cafeId = data.cafe.cafe_id;
+                    cafeName = data.cafe.name;
+
+                    localStorage.setItem('pm_manager_token', managerToken);
+                    localStorage.setItem('pm_manager_id', managerId);
+                    localStorage.setItem('pm_cafe_id', cafeId);
+                    localStorage.setItem('pm_cafe_name', cafeName);
+
+                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('dashboard-screen').classList.remove('hidden');
+                    document.getElementById('fabScan').classList.remove('hidden');
+                    document.getElementById('headerCafeName').textContent = cafeName;
+                    
+                    loadDashboard();
+                    startDashboardPolling();
+                } else {
+                    errDiv.textContent = data.message || 'Đăng nhập thất bại';
+                    errDiv.classList.remove('hidden');
+                }
+            } catch (e) {
+                errDiv.textContent = 'Lỗi kết nối máy chủ';
+                errDiv.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                spinner.classList.add('hidden');
+                icon.classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            if (!confirm('Bạn có chắc muốn đăng xuất?')) return;
+            localStorage.removeItem('pm_manager_token');
+            localStorage.removeItem('pm_manager_id');
+            localStorage.removeItem('pm_cafe_id');
+            localStorage.removeItem('pm_cafe_name');
+            if (dashboardInterval) clearInterval(dashboardInterval);
+            window.location.reload();
+        }
+
+        // ================= DASHBOARD DATA =================
+        function switchTab(tab) {
+            currentTab = tab;
+            const btnActive = document.getElementById('tab-active');
+            const btnPending = document.getElementById('tab-pending');
+            const listActive = document.getElementById('list-active');
+            const listPending = document.getElementById('list-pending');
+
+            if (tab === 'active') {
+                btnActive.className = 'flex-1 py-2 rounded-lg font-bold text-sm bg-blue-100 navy-text transition';
+                btnPending.className = 'flex-1 py-2 rounded-lg font-bold text-sm text-slate-500 transition hover:bg-slate-100';
+                listActive.classList.remove('hidden');
+                listPending.classList.add('hidden');
+            } else {
+                btnPending.className = 'flex-1 py-2 rounded-lg font-bold text-sm bg-blue-100 navy-text transition';
+                btnActive.className = 'flex-1 py-2 rounded-lg font-bold text-sm text-slate-500 transition hover:bg-slate-100';
+                listPending.classList.remove('hidden');
+                listActive.classList.add('hidden');
+            }
+        }
+
+        async function loadDashboard() {
+            if (!managerId || !managerToken) return;
+            try {
+                const res = await fetch(`${CLOUD_FUNCTION_URL}?action=cafeManagerGetStats&managerId=${managerId}&managerToken=${managerToken}`);
+                const data = await res.json();
+
+                if (data.status === 200) {
+                    document.getElementById('statActive').textContent = data.active_count;
+                    document.getElementById('statPending').textContent = data.pending_count;
+                    
+                    renderActiveCheckins(data.active_checkins);
+                    renderPendingBookings(data.pending_bookings);
+                } else if (res.status === 401) {
+                    showToast('Phiên đăng nhập hết hạn', false);
+                    handleLogout();
+                }
+            } catch (e) {
+                console.error('Load dashboard error:', e);
+            }
+        }
+
+        function startDashboardPolling() {
+            if (dashboardInterval) clearInterval(dashboardInterval);
+            dashboardInterval = setInterval(loadDashboard, 20000); // 20s/lần
+        }
+
+        function renderActiveCheckins(checkins) {
+            const container = document.getElementById('list-active');
+            if (!checkins || checkins.length === 0) {
+                container.innerHTML = `<div class="text-center text-slate-400 py-10"><i class="fa-solid fa-mug-hot text-4xl mb-3 opacity-50"></i><p>Không có khách đang ngồi</p></div>`;
+                return;
+            }
+
+            container.innerHTML = checkins.map(c => {
+                const isConfirmed = !!c.manager_confirmed_at;
+                return `
+                <div class="card p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <div class="font-bold text-slate-800 text-lg">${c.guest_name || 'Khách lẻ'}</div>
+                            <div class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-chair mr-1"></i> Bàn: <span class="font-bold text-slate-700">${c.table_number || 'Chưa xếp'}</span></div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xl font-bold ${isConfirmed ? 'text-green-600' : 'text-orange-500'}">${c.elapsed_hours.toFixed(1)}h</div>
+                            <div class="text-[10px] uppercase font-bold ${isConfirmed ? 'text-green-600' : 'text-orange-500'}">${isConfirmed ? 'Đang ngồi' : 'Chờ xác nhận'}</div>
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-500 mb-3"><i class="fa-regular fa-clock mr-1"></i> Vào: ${fmtDateTime(c.check_in_at)}</div>
+                    
+                    ${isConfirmed ? `
+                        <div class="flex gap-2 mt-3 pt-3 border-t">
+                            <button onclick="submitManagerAction('confirm', '${c.checkin_id}', this)" class="flex-1 bg-green-50 text-green-700 py-2 rounded-lg font-bold text-sm border border-green-200 hover:bg-green-100"><i class="fa-solid fa-check mr-1"></i> Xác nhận Bill</button>
+                            <button onclick="submitManagerAction('undo', '${c.checkin_id}', this)" class="flex-1 bg-orange-50 text-orange-700 py-2 rounded-lg font-bold text-sm border border-orange-200 hover:bg-orange-100"><i class="fa-solid fa-rotate-left mr-1"></i> Hoàn tác</button>
+                        </div>
+                    ` : `
+                        <div class="bg-orange-50 text-orange-700 text-xs p-2 rounded-lg text-center font-medium">Khách hàng chưa quét QR / Chưa xác nhận</div>
+                    `}
+                </div>
+                `;
+            }).join('');
+        }
+
+        function renderPendingBookings(bookings) {
+            const container = document.getElementById('list-pending');
+            if (!bookings || bookings.length === 0) {
+                container.innerHTML = `<div class="text-center text-slate-400 py-10"><i class="fa-regular fa-calendar-xmark text-4xl mb-3 opacity-50"></i><p>Không có booking chờ</p></div>`;
+                return;
+            }
+
+            container.innerHTML = bookings.map(b => `
+                <div class="card p-4 border-l-4 border-blue-500">
+                    <div class="font-bold text-slate-800">${b.guest_name || 'Khách đặt trước'}</div>
+                    <div class="text-sm text-slate-600 mt-1"><i class="fa-regular fa-clock mr-1"></i> ${fmtDateTime(b.start_time_iso)}</div>
+                    <div class="text-xs text-slate-500 mt-1">${b.note ? b.note : ''}</div>
+                </div>
+            `).join('');
+        }
+
+        // ================= ACTIONS (CONFIRM/UNDO) =================
+        async function submitManagerAction(action, checkinId, btn) {
+            if (action === 'undo' && !confirm('Bạn có chắc muốn hoàn tác check-out này? Khách sẽ phải check-out lại.')) return;
+
+            const origHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+            try {
+                const url = action === 'confirm' ? 'cafeManagerConfirm' : 'cafeManagerUndo';
+                const payload = {
+                    action: url,
+                    checkinId: checkinId,
+                    managerId: managerId,
+                    managerToken: managerToken
+                };
+                if (action === 'undo') payload.reason = 'Manager hoàn tác từ Dashboard';
+
+                const res = await fetch(CLOUD_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (data.status === 200) {
+                    showToast(action === 'confirm' ? 'Đã xác nhận bill' : 'Đã hoàn tác', true);
+                    loadDashboard();
+                } else {
+                    showToast(data.message || 'Thao tác thất bại', false);
+                    btn.disabled = false;
+                    btn.innerHTML = origHTML;
+                }
+            } catch (e) {
+                showToast('Lỗi kết nối', false);
+                btn.disabled = false;
+                btn.innerHTML = origHTML;
+            }
+        }
+
+        // ================= QR SCANNER =================
+        function openQRModal() {
+            document.getElementById('qrModal').classList.remove('hidden');
+            document.getElementById('tableInputWrap').classList.add('hidden');
+            document.getElementById('qrResult').classList.add('hidden');
+            document.getElementById('inputTableNumber').value = '';
+            document.getElementById('tableError').classList.add('hidden');
+            scannedQrContent = null;
+
+            qrScanner = new Html5Qrcode("qr-reader");
+            qrScanner.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                onQRScanSuccess
+            ).catch(err => {
+                showToast('Không mở được Camera: ' + err, false);
+                closeQRModal();
+            });
+        }
+
+        async function closeQRModal() {
+            if (qrScanner) {
+                try { await qrScanner.stop(); qrScanner.clear(); } catch(e){}
+                qrScanner = null;
+            }
+            document.getElementById('qrModal').classList.add('hidden');
+        }
+
+        function onQRScanSuccess(decodedText) {
+            // Tạm dừng quét để xử lý
+            if (qrScanner) qrScanner.pause(true);
+            
+            scannedQrContent = decodedText;
+            document.getElementById('qrResultText').textContent = decodedText;
+            document.getElementById('qrResult').classList.remove('hidden');
+            document.getElementById('tableInputWrap').classList.remove('hidden');
+            
+            // Focus vào ô nhập bàn
+            document.getElementById('inputTableNumber').focus();
+        }
+
+        async function submitQRConfirm() {
+            const tableNum = document.getElementById('inputTableNumber').value;
+            const errDiv = document.getElementById('tableError');
+            
+            if (!tableNum || parseInt(tableNum) < 1) {
+                errDiv.textContent = 'Vui lòng nhập số bàn hợp lệ (>=1)';
+                errDiv.classList.remove('hidden');
+                return;
+            }
+            errDiv.classList.add('hidden');
+
+            const btn = document.getElementById('btnSubmitQR');
+            const origHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xác nhận...';
+
+            const allowMerge = document.getElementById('chkMergeTable').checked;
+
+            try {
+                const res = await fetch(CLOUD_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'cafeManagerVerifyQR',
+                        qrContent: scannedQrContent,
+                        managerId: managerId,
+                        managerToken: managerToken,
+                        tableNumber: parseInt(tableNum),
+                        allowTableMerge: allowMerge
+                    })
+                });
+                const data = await res.json();
+
+                if (data.status === 200) {
+                    showToast('Xác nhận QR thành công!', true);
+                    closeQRModal();
+                    loadDashboard();
+                } else if (data.status === 409 && data.code === 'TABLE_OCCUPIED') {
+                    // Bàn đã có khách -> Hỏi ghép bàn
+                    if (confirm(`${data.message}\n\nBạn có muốn ghép bàn không?`)) {
+                        document.getElementById('chkMergeTable').checked = true;
+                        submitQRConfirm(); // Gọi lại hàm này với flag merge=true
+                    } else {
+                        btn.disabled = false;
+                        btn.innerHTML = origHTML;
+                    }
+                } else {
+                    errDiv.textContent = data.message || 'Lỗi xác nhận';
+                    errDiv.classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.innerHTML = origHTML;
+                }
+            } catch (e) {
+                errDiv.textContent = 'Lỗi kết nối máy chủ';
+                errDiv.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = origHTML;
+            }
+        }
+
+        // ================= INIT =================
+        window.onload = () => {
+            if (managerToken && managerId && cafeName) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('dashboard-screen').classList.remove('hidden');
+                document.getElementById('fabScan').classList.remove('hidden');
+                document.getElementById('headerCafeName').textContent = cafeName;
+                loadDashboard();
+                startDashboardPolling();
+            }
+        };
+    </script>
+</body>
+</html>
