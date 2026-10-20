@@ -121,6 +121,8 @@
             padding: 16px;
             border: 1px solid var(--border);
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            width: 100%;
+            box-sizing: border-box;
         }
         .task-header { display: flex; justify-content: space-between; align-items: flex-start; }
         .task-title { font-weight: 700; font-size: 16px; color: var(--text); }
@@ -286,10 +288,10 @@
             </div>
 
             <!-- Danh sách -->
-            <div class="list-container" style="padding: 0; display: flex; flex-direction: column; gap: 12px;">
-                <div id="list-active"></div>
-                <div id="list-confirm" style="display: none; flex-direction: column; gap: 12px;"></div>
-                <div id="list-pending" style="display: none; flex-direction: column; gap: 12px;"></div>
+            <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                <div id="list-active" style="width: 100%; display: flex; flex-direction: column; gap: 12px;"></div>
+                <div id="list-confirm" style="width: 100%; display: none; flex-direction: column; gap: 12px;"></div>
+                <div id="list-pending" style="width: 100%; display: none; flex-direction: column; gap: 12px;"></div>
             </div>
         </div>
     </div>
@@ -426,7 +428,7 @@
                 const list = document.getElementById('list-' + t);
                 if (t === tab) {
                     btn.classList.add('active');
-                    list.style.display = 'flex';
+                    list.style.display = 'flex'; // Hiện tại nó đã có sẵn flex-direction: column từ HTML
                 } else {
                     btn.classList.remove('active');
                     list.style.display = 'none';
