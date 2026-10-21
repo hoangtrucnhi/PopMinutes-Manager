@@ -296,11 +296,7 @@
                 <!-- Khung Đối soát -->
                 <div id="list-history" style="width: 100%; display: none; flex-direction: column; gap: 12px;">
                     <div style="display: flex; gap: 8px;">
-                        <select id="historyRange" class="input-field" onchange="loadHistoryRevenue()" style="margin-bottom: 0; flex: 1;">
-                            <option value="1">Hôm nay</option>
-                            <option value="7" selected>7 ngày qua</option>
-                            <option value="30">30 ngày qua</option>
-                        </select>
+                    <input type="month" id="historyMonth" class="input-field" onchange="loadHistoryRevenue()" style="margin-bottom: 0; flex: 1;">
                         <select id="historyPayStatus" class="input-field" onchange="filterAndRenderHistory()" style="margin-bottom: 0; flex: 1;">
                             <option value="all">Tất cả Bill</option>
                             <option value="unpaid" selected>Chưa thanh toán</option>
@@ -628,12 +624,25 @@
         }
                 let allRevenueData = []; // Biến toàn cục lưu data để lọc
 
+                let allRevenueData = []; // Biến toàn cục lưu data để lọc
+
         async function loadHistoryRevenue() {
-            const days = parseInt(document.getElementById('historyRange').value) || 7;
-            const fromMs = Date.now() - days * 24 * 60 * 60 * 1000;
-            const toMs = Date.now();
-            const listContainer = document.getElementById('historyList');
+            const monthInput = document.getElementById('historyMonth');
             
+            // Nếu chưa chọn tháng, tự động chọn tháng hiện tại
+            if (!monthInput.value) {
+                const now = new Date();
+                const m = String(now.getMonth() + 1).padStart(2, '0');
+                monthInput.value = `${now.getFullYear()}-${m}`;
+            }
+
+            // Tính mốc thời gian đầu tháng và cuối tháng
+            const [year, month] = monthInput.value.split('-');
+            const fromMs = new Date(year, parseInt(month) - 1, 1).getTime();
+            // Ngày 0 của tháng sau = ngày cuối cùng của tháng hiện tại
+            const toMs = new Date(year, parseInt(month), 0, 23, 59, 59, 999).getTime();
+
+            const listContainer = document.getElementById('historyList');
             listContainer.innerHTML = `<div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i><p>Đang tải...</p></div>`;
 
             try {
