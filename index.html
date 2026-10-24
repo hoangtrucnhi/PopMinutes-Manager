@@ -634,10 +634,14 @@
             }
 
             // Tính mốc thời gian đầu tháng và cuối tháng
-            const [year, month] = monthInput.value.split('-');
-            const fromMs = new Date(year, parseInt(month) - 1, 1).getTime();
-            // Ngày 0 của tháng sau = ngày cuối cùng của tháng hiện tại
-            const toMs = new Date(year, parseInt(month), 0, 23, 59, 59, 999).getTime();
+            const [year, month] = monthInput.value.split('-').map(Number);
+// 🚨 FIX 5.1: Tính range theo VN timezone — khớp Admin BE
+// 1/MM 00:00 VN = 1/MM 00:00 UTC - 7h
+const fromMs = Date.UTC(year, month - 1, 1, 0, 0, 0) - 7 * 60 * 60 * 1000;
+// 1/(MM+1) 00:00 VN - 1ms
+const nextY = month === 12 ? year + 1 : year;
+const nextM = month === 12 ? 1 : month + 1;
+const toMs = Date.UTC(nextY, nextM - 1, 1, 0, 0, 0) - 7 * 60 * 60 * 1000 - 1;
 
             const listContainer = document.getElementById('historyList');
             listContainer.innerHTML = `<div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i><p>Đang tải...</p></div>`;
