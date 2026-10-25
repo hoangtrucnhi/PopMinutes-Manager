@@ -579,9 +579,33 @@
             }
         }
 
+        // ============================================================
+        //  VISIBILITY POLLING — Dừng khi ẩn tab, refresh khi mở lại
+        // ============================================================
+        let isManagerTabVisible = !document.hidden;
+
+        document.addEventListener('visibilitychange', function() {
+            isManagerTabVisible = !document.hidden;
+
+            if (isManagerTabVisible) {
+                console.log('👀 Tab visible → refresh dashboard ngay');
+                // Chỉ refresh nếu đã login + đang ở màn dashboard
+                if (managerId && managerToken && document.getElementById('dashboard-screen').style.display !== 'none') {
+                    loadDashboard();
+                }
+            } else {
+                console.log('😴 Tab hidden → tạm dừng gọi API');
+            }
+        });
+
         function startDashboardPolling() {
             if (dashboardInterval) clearInterval(dashboardInterval);
-            dashboardInterval = setInterval(loadDashboard, 20000);
+            dashboardInterval = setInterval(function() {
+                // Chỉ gọi khi tab đang hiển thị
+                if (isManagerTabVisible) {
+                    loadDashboard();
+                }
+            }, 20000);
         }
 
         function renderActiveCheckins(checkins) {
