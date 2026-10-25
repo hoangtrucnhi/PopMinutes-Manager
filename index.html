@@ -245,6 +245,25 @@
             z-index: 9999; padding: 10px 15px; border: none; border-radius: 30px; 
             color: white; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
+                /* ===== BOTTOM NAV ===== */
+        nav.bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: #fff; display: flex; justify-content: space-around;
+            padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100;
+            border-top: 1px solid var(--border);
+        }
+        nav.bottom-nav .nav-item {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            background: none; border: none; font-family: inherit;
+            color: var(--muted); font-size: 11px; font-weight: 600;
+            cursor: pointer; flex: 1; padding: 8px 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        nav.bottom-nav .nav-item i { font-size: 20px; margin-bottom: 2px; }
+        nav.bottom-nav .nav-item.active { color: var(--navy); }
+        nav.bottom-nav .nav-item.active i { transform: translateY(-2px); transition: 0.2s; }
+        body { padding-bottom: 80px; } /* Đẩy nội dung lên để không bị Nav che */
     </style>
 </head>
 <body>
@@ -313,18 +332,25 @@
 
         <!-- Bao bọc tất cả vào 1 khung có padding chung -->
         <div style="padding: 20px 20px 100px;">
-            <!-- Tabs -->
-            <div class="task-tabs" style="margin: 0 0 16px 0; width: 100%;">
-                <button onclick="switchTab('active')" id="tab-active" class="task-tab active">Đang ngồi</button>
-                <button onclick="switchTab('confirm')" id="tab-confirm" class="task-tab">Chờ Bill</button>
-                <button onclick="switchTab('pending')" id="tab-pending" class="task-tab">Chờ tới</button>
-                <button onclick="switchTab('history')" id="tab-history" class="task-tab">Đối soát</button>
+            
+            <!-- ================= VIEW: ĐẶT CHỖ (BOOKING) ================= -->
+            <div id="view-booking" class="pa-view" style="display: none;">
+                <div id="list-pending" style="width: 100%; display: flex; flex-direction: column; gap: 12px;"></div>
             </div>
-            <!-- Danh sách -->
-            <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+
+            <!-- ================= VIEW: VẬN HÀNH (CHECK-IN) ================= -->
+            <div id="view-operation" class="pa-view">
+                <!-- Tab trượt -->
+                <div class="task-tabs" style="margin: 0 0 16px 0; width: 100%;">
+                    <button onclick="switchSubTab('active')" id="tab-active" class="task-tab active">Đang ngồi</button>
+                    <button onclick="switchSubTab('confirm')" id="tab-confirm" class="task-tab">Chờ chốt</button>
+                </div>
                 <div id="list-active" style="width: 100%; display: flex; flex-direction: column; gap: 12px;"></div>
                 <div id="list-confirm" style="width: 100%; display: none; flex-direction: column; gap: 12px;"></div>
-                <div id="list-pending" style="width: 100%; display: none; flex-direction: column; gap: 12px;"></div>
+            </div>
+
+            <!-- ================= VIEW: DOANH THU (REVENUE) ================= -->
+            <div id="view-revenue" class="pa-view" style="display: none;">
                 
                 <!-- Khung Đối soát -->
                 <div id="list-history" style="width: 100%; display: none; flex-direction: column; gap: 12px;">
@@ -358,7 +384,18 @@
             </div>
         </div>
     </div>
-
+    <!-- BOTTOM NAVIGATION (Menu chính) -->
+    <nav class="bottom-nav">
+        <button class="nav-item" data-menu="booking" onclick="switchMainMenu('booking')">
+            <i class="fa-solid fa-calendar-check"></i><span>Đặt chỗ</span>
+        </button>
+        <button class="nav-item active" data-menu="operation" onclick="switchMainMenu('operation')">
+            <i class="fa-solid fa-store"></i><span>Vận hành</span>
+        </button>
+        <button class="nav-item" data-menu="revenue" onclick="switchMainMenu('revenue')">
+            <i class="fa-solid fa-file-invoice-dollar"></i><span>Doanh thu</span>
+        </button>
+    </nav>
     <!-- Nút Quét QR -->
     <button onclick="openQRModal()" id="fabScan" class="fab-scan" style="display: none;">
         <i class="fa-solid fa-qrcode"></i>
@@ -717,26 +754,39 @@
             window.location.reload();
         }
 
-        function switchTab(tab) {
-            currentTab = tab;
-            ['active', 'confirm', 'pending', 'history'].forEach(t => {
-                const btn = document.getElementById('tab-' + t);
-                const list = document.getElementById('list-' + t);
-                if (t === tab) {
-                    btn.classList.add('active');
-                    list.style.display = 'flex';
-                } else {
-                    btn.classList.remove('active');
-                    list.style.display = 'none';
-                }
+                // Hàm chuyển Menu chính (Bottom Nav)
+        function switchMainMenu(menu) {
+            // 1. Cập nhật class active cho Bottom Nav
+            document.querySelectorAll('nav.bottom-nav .nav-item').forEach(el => {
+                el.classList.toggle('active', el.dataset.menu === menu);
             });
 
-            if (tab === 'history') {
+            // 2. Ẩn tất cả các view, chỉ hiện view được chọn
+            document.querySelectorAll('.pa-view').forEach(el => el.style.display = 'none');
+            const targetView = document.getElementById('view-' + menu);
+            if (targetView) targetView.style.display = 'block';
+
+            // 3. Load data tương ứng nếu cần
+            if (menu === 'revenue') {
                 loadHistoryRevenue();
+            } else if (menu === 'booking') {
+                loadDashboard(); // Cập nhật lại danh sách chờ tới
             }
         }
 
-        async function loadDashboard() {
+        // Hàm chuyển Tab trượt bên trong Menu Vận hành
+        function switchSubTab(tab) {
+            currentTab = tab;
+            // Cập nhật class active cho Tab trượt
+            document.getElementById('tab-active').classList.toggle('active', tab === 'active');
+            document.getElementById('tab-confirm').classList.toggle('active', tab === 'confirm');
+            
+            // Ẩn/hiện list
+            document.getElementById('list-active').style.display = (tab === 'active') ? 'flex' : 'none';
+            document.getElementById('list-confirm').style.display = (tab === 'confirm') ? 'flex' : 'none';
+        }
+
+                async function loadDashboard() {
             if (!managerId || !managerToken) return;
             try {
                 const res = await mgrFetch(`${CLOUD_FUNCTION_URL}?action=cafeManagerGetStats&managerId=${managerId}&managerToken=${managerToken}`);
@@ -750,7 +800,6 @@
                     renderPendingConfirms(data.pending_confirms || []);
                     renderPendingBookings(data.pending_bookings);
                 }
-                // 401 đã được mgrFetch tự handle → không cần check ở đây
             } catch (e) {
                 if (e.message === 'SESSION_EXPIRED') return;
                 console.error('Load dashboard error:', e);
