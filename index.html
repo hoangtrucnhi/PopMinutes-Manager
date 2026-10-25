@@ -1017,7 +1017,7 @@
                     showToast(action === 'confirm' ? 'Đã xác nhận bill' : 'Đã hoàn tác', true);
                     loadDashboard();
                 } else {
-                    showToast(data.message || 'Thao tác thất bại', false);
+                    showToast(getMgrErrorMsg(data.code, data.params, data.message), false);
                     btn.disabled = false;
                     btn.innerHTML = origHTML;
                 }
@@ -1054,7 +1054,7 @@
                     showToast(isConfirm ? 'Đã xác nhận' : 'Đã hủy', true);
                     loadDashboard();
                 } else {
-                    showToast(data.message || 'Thao tác thất bại', false);
+                    showToast(getMgrErrorMsg(data.code, data.params, data.message), false);
                     btn.disabled = false;
                     btn.innerHTML = origHTML;
                 }
@@ -1148,7 +1148,7 @@
                         btn.innerHTML = origHTML;
                     }
                 } else {
-                    errDiv.textContent = data.message || 'Lỗi xác nhận';
+                    errDiv.textContent = getMgrErrorMsg(data.code, data.params, data.message);
                     errDiv.style.display = 'block';
                     btn.disabled = false;
                     btn.innerHTML = origHTML;
