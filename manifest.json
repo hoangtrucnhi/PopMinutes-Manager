@@ -1,8 +1,8 @@
 {
-  "name": "PopMinutes Manager",
-  "short_name": "PM Cafe",
+  "name": "PopMinutes Cafe",
+  "short_name": "PopMinutes Cafe",
   "description": "Ứng dụng quản lý quán cafe PopMinutes",
-  "start_url": "/PopMinutes-Manager/",
+  "start_url": "/PopMinutes-Manager/?v=2",
   "display": "standalone",
   "background_color": "#1B2B7A",
   "theme_color": "#1B2B7A",
