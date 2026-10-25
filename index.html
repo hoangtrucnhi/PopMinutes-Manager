@@ -868,7 +868,7 @@
             }).join('');
         }
 
-        function renderPendingConfirms(confirms) {
+                function renderPendingConfirms(confirms) {
             const container = document.getElementById('list-confirm');
             if (!confirms || confirms.length === 0) {
                 container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-receipt"></i><p>Không có bill nào chờ xác nhận</p></div>`;
@@ -877,13 +877,15 @@
 
             container.innerHTML = confirms.map(c => {
                 const isExpired = c.confirmation_deadline_ms > 0 && Date.now() > c.confirmation_deadline_ms;
+                const tableDisplay = c.table_number || 'Chưa xếp'; // 🚨 Lấy số bàn
                 
                 return `
                 <div class="task-item">
                     <div class="task-header">
                         <div>
-                            <div class="task-title">${c.guest_name || 'Khách lẻ'}</div>
+                            <div class="task-title">${c.guest_name}</div>
                             <div class="task-meta">
+                                <span><i class="fa-solid fa-chair"></i> Bàn: <b style="color: var(--text);">${tableDisplay}</b></span>
                                 <span><i class="fa-regular fa-clock"></i> Ra: ${fmtDateTime(c.check_out_at)}</span>
                             </div>
                         </div>
