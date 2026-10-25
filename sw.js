@@ -3,7 +3,7 @@
 //  Kết hợp: Caching + Push Notification
 // ============================================================
 
-const CACHE_NAME = 'popminutes-v2';
+const CACHE_NAME = 'pm-manager-v2-clear-cache'; 
 const urlsToCache = [
   './',
   './index.html',
