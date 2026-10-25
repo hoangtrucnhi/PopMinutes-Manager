@@ -1,21 +1,26 @@
 {
-  "name": "PopMinutes Manager",
-  "short_name": "PM Manager",
-  "description": "Ứng dụng quản lý quán cafe PopMinutes",
+  "name": "PopMinutes",
+  "short_name": "PopMinutes",
+  "description": "Cafe manager",
   "start_url": "/PopMinutes-Manager/",
+  "scope": "/PopMinutes-Manager/",
+  "id": "/PopMinutes-Manager/",
   "display": "standalone",
-  "background_color": "#F8FAFC",
+  "orientation": "portrait",
+  "background_color": "#1B2B7A",
   "theme_color": "#1B2B7A",
   "icons": [
     {
-      "src": "https://raw.githubusercontent.com/hoangtrucnhi/PopMinutes-PWA/main/launchericon-192x192.png",
+      "src": "launchericon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "https://raw.githubusercontent.com/hoangtrucnhi/PopMinutes-PWA/main/launchericon-512x512.png",
+      "src": "launchericon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
