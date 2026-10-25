@@ -378,6 +378,94 @@
         let scannedQrContent = null;
         let dashboardInterval = null;
 
+        // ============================================================
+        //  SESSION HELPER — Auto-logout khi phiên hết hạn
+        // ============================================================
+        async function mgrFetch(url, options) {
+            const res = await fetch(url, options);
+
+            // BE trả 401 qua HTTP status
+            if (res.status === 401) {
+                handleSessionExpired();
+                throw new Error('SESSION_EXPIRED');
+            }
+
+            // BE trả 401 qua body (JSON { status: 401 } hoặc { code: 'MGR_INVALID_TOKEN' })
+            try {
+                const cloned = res.clone();
+                const peek = await cloned.json();
+                if (peek && (
+                    peek.status === 401 ||
+                    peek.code === 'MGR_INVALID_TOKEN' ||
+                    peek.code === 'MGR_MISSING_TOKEN'
+                )) {
+                    handleSessionExpired();
+                    throw new Error('SESSION_EXPIRED');
+                }
+            } catch (peekErr) {
+                if (peekErr.message === 'SESSION_EXPIRED') throw peekErr;
+                // Body không phải JSON hoặc parse fail → bỏ qua, để caller tự xử lý
+            }
+
+            return res;
+        }
+
+        function handleSessionExpired() {
+            // Guard: chỉ trigger 1 lần, tránh spam khi có nhiều request song song
+            if (window.__sessionExpiredHandled) return;
+            window.__sessionExpiredHandled = true;
+
+            console.log('🔒 Session expired → auto logout');
+            showToast('Phiên đăng nhập hết hạn. Đang đăng xuất...', false);
+
+            // Clear localStorage
+            localStorage.removeItem('pm_manager_token');
+            localStorage.removeItem('pm_manager_id');
+            localStorage.removeItem('pm_cafe_id');
+            localStorage.removeItem('pm_cafe_name');
+
+            // Reset biến global
+            managerToken = '';
+            managerId = '';
+            cafeId = '';
+            cafeName = '';
+
+            // Stop polling
+            if (dashboardInterval) {
+                clearInterval(dashboardInterval);
+                dashboardInterval = null;
+            }
+
+            // Đóng mọi modal đang mở
+            document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+
+            // Đóng QR scanner nếu đang chạy
+            if (qrScanner) {
+                try { qrScanner.stop(); qrScanner.clear(); } catch (e) {}
+                qrScanner = null;
+            }
+
+            // Về màn login sau 800ms (để user kịp đọc toast)
+            setTimeout(() => {
+                document.getElementById('dashboard-screen').style.display = 'none';
+                document.getElementById('fabScan').style.display = 'none';
+                document.getElementById('login-screen').style.display = 'flex';
+
+                // Reset form login
+                const loginBtn = document.getElementById('loginBtn');
+                const loginSpinner = document.getElementById('loginSpinner');
+                const loginIcon = document.getElementById('loginIcon');
+                const loginErr = document.getElementById('loginError');
+                if (loginBtn) loginBtn.disabled = false;
+                if (loginSpinner) loginSpinner.style.display = 'none';
+                if (loginIcon) loginIcon.style.display = 'inline-block';
+                if (loginErr) loginErr.style.display = 'none';
+
+                // Reset flag để lần hết hạn sau còn hoạt động
+                window.__sessionExpiredHandled = false;
+            }, 800);
+        }
+
         function showToast(msg, isSuccess = true) {
             const toast = document.getElementById('toast');
             toast.textContent = msg;
@@ -473,21 +561,20 @@
         async function loadDashboard() {
             if (!managerId || !managerToken) return;
             try {
-                const res = await fetch(`${CLOUD_FUNCTION_URL}?action=cafeManagerGetStats&managerId=${managerId}&managerToken=${managerToken}`);
+                const res = await mgrFetch(`${CLOUD_FUNCTION_URL}?action=cafeManagerGetStats&managerId=${managerId}&managerToken=${managerToken}`);
                 const data = await res.json();
 
                 if (data.status === 200) {
                     document.getElementById('statActive').textContent = data.active_count;
                     document.getElementById('statPending').textContent = data.pending_count;
-                    
+
                     renderActiveCheckins(data.active_checkins);
                     renderPendingConfirms(data.pending_confirms || []);
                     renderPendingBookings(data.pending_bookings);
-                } else if (res.status === 401) {
-                    showToast('Phiên đăng nhập hết hạn', false);
-                    handleLogout();
                 }
+                // 401 đã được mgrFetch tự handle → không cần check ở đây
             } catch (e) {
+                if (e.message === 'SESSION_EXPIRED') return;
                 console.error('Load dashboard error:', e);
             }
         }
@@ -625,38 +712,35 @@
                 let allRevenueData = []; // Biến toàn cục lưu data để lọc
         async function loadHistoryRevenue() {
             const monthInput = document.getElementById('historyMonth');
-            
-            // Nếu chưa chọn tháng, tự động chọn tháng hiện tại
+
             if (!monthInput.value) {
                 const now = new Date();
                 const m = String(now.getMonth() + 1).padStart(2, '0');
                 monthInput.value = `${now.getFullYear()}-${m}`;
             }
 
-            // Tính mốc thời gian đầu tháng và cuối tháng
+            // 🚨 FIX 5.1: Tính range theo VN timezone — khớp Admin BE
             const [year, month] = monthInput.value.split('-').map(Number);
-// 🚨 FIX 5.1: Tính range theo VN timezone — khớp Admin BE
-// 1/MM 00:00 VN = 1/MM 00:00 UTC - 7h
-const fromMs = Date.UTC(year, month - 1, 1, 0, 0, 0) - 7 * 60 * 60 * 1000;
-// 1/(MM+1) 00:00 VN - 1ms
-const nextY = month === 12 ? year + 1 : year;
-const nextM = month === 12 ? 1 : month + 1;
-const toMs = Date.UTC(nextY, nextM - 1, 1, 0, 0, 0) - 7 * 60 * 60 * 1000 - 1;
+            const fromMs = Date.UTC(year, month - 1, 1, 0, 0, 0) - 7 * 60 * 60 * 1000;
+            const nextY = month === 12 ? year + 1 : year;
+            const nextM = month === 12 ? 1 : month + 1;
+            const toMs = Date.UTC(nextY, nextM - 1, 1, 0, 0, 0) - 7 * 60 * 60 * 1000 - 1;
 
             const listContainer = document.getElementById('historyList');
             listContainer.innerHTML = `<div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i><p>Đang tải...</p></div>`;
 
             try {
-                const res = await fetch(`${CLOUD_FUNCTION_URL}?action=cafeManagerGetRevenue&managerId=${managerId}&managerToken=${managerToken}&fromMs=${fromMs}&toMs=${toMs}`);
+                const res = await mgrFetch(`${CLOUD_FUNCTION_URL}?action=cafeManagerGetRevenue&managerId=${managerId}&managerToken=${managerToken}&fromMs=${fromMs}&toMs=${toMs}`);
                 const data = await res.json();
 
                 if (data.status === 200) {
-                    allRevenueData = [...data.checkins].reverse(); // Mới nhất lên đầu
+                    allRevenueData = [...data.checkins].reverse();
                     filterAndRenderHistory();
                 } else {
                     listContainer.innerHTML = `<div class="empty-state"><i class="fa-solid fa-circle-exclamation"></i><p>Lỗi tải dữ liệu</p></div>`;
                 }
             } catch (e) {
+                if (e.message === 'SESSION_EXPIRED') return;
                 console.error('Load history error:', e);
                 listContainer.innerHTML = `<div class="empty-state"><i class="fa-solid fa-circle-exclamation"></i><p>Lỗi kết nối</p></div>`;
             }
@@ -741,7 +825,7 @@ const toMs = Date.UTC(nextY, nextM - 1, 1, 0, 0, 0) - 7 * 60 * 60 * 1000 - 1;
                 const payload = { action: url, checkinId, managerId, managerToken };
                 if (action === 'undo') payload.reason = 'Manager hoàn tác';
 
-                const res = await fetch(CLOUD_FUNCTION_URL, {
+                const res = await mgrFetch(CLOUD_FUNCTION_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -757,13 +841,12 @@ const toMs = Date.UTC(nextY, nextM - 1, 1, 0, 0, 0) - 7 * 60 * 60 * 1000 - 1;
                     btn.innerHTML = origHTML;
                 }
             } catch (e) {
+                if (e.message === 'SESSION_EXPIRED') return;
                 showToast('Lỗi kết nối', false);
                 btn.disabled = false;
                 btn.innerHTML = origHTML;
             }
-        }
-
-        async function submitBookingAction(action, bookingId, btn) {
+        }        async function submitBookingAction(action, bookingId, btn) {
             if (action === 'cancel' && !confirm('Bạn có chắc muốn hủy booking này?')) return;
 
             const origHTML = btn.innerHTML;
@@ -772,7 +855,7 @@ const toMs = Date.UTC(nextY, nextM - 1, 1, 0, 0, 0) - 7 * 60 * 60 * 1000 - 1;
 
             try {
                 const isConfirm = action === 'confirm';
-                const res = await fetch(CLOUD_FUNCTION_URL, {
+                const res = await mgrFetch(CLOUD_FUNCTION_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -795,12 +878,12 @@ const toMs = Date.UTC(nextY, nextM - 1, 1, 0, 0, 0) - 7 * 60 * 60 * 1000 - 1;
                     btn.innerHTML = origHTML;
                 }
             } catch (e) {
+                if (e.message === 'SESSION_EXPIRED') return;
                 showToast('Lỗi kết nối', false);
                 btn.disabled = false;
                 btn.innerHTML = origHTML;
             }
         }
-
         // ================= QR SCANNER =================
         function openQRModal() {
             document.getElementById('qrModal').classList.add('active');
@@ -841,7 +924,7 @@ const toMs = Date.UTC(nextY, nextM - 1, 1, 0, 0, 0) - 7 * 60 * 60 * 1000 - 1;
         async function submitQRConfirm() {
             const tableNum = document.getElementById('inputTableNumber').value;
             const errDiv = document.getElementById('tableError');
-            
+
             if (!tableNum || parseInt(tableNum) < 1) {
                 errDiv.textContent = 'Vui lòng nhập số bàn hợp lệ (>=1)';
                 errDiv.style.display = 'block';
@@ -857,7 +940,7 @@ const toMs = Date.UTC(nextY, nextM - 1, 1, 0, 0, 0) - 7 * 60 * 60 * 1000 - 1;
             const allowMerge = document.getElementById('chkMergeTable').checked;
 
             try {
-                const res = await fetch(CLOUD_FUNCTION_URL, {
+                const res = await mgrFetch(CLOUD_FUNCTION_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -890,6 +973,7 @@ const toMs = Date.UTC(nextY, nextM - 1, 1, 0, 0, 0) - 7 * 60 * 60 * 1000 - 1;
                     btn.innerHTML = origHTML;
                 }
             } catch (e) {
+                if (e.message === 'SESSION_EXPIRED') return;
                 errDiv.textContent = 'Lỗi kết nối máy chủ';
                 errDiv.style.display = 'block';
                 btn.disabled = false;
