@@ -4,7 +4,7 @@
   "description": "Ứng dụng quản lý quán cafe PopMinutes",
   "start_url": "/PopMinutes-Manager/?v=2",
   "display": "standalone",
-  "background_color": "#1B2B7A",
+  "background_color": "#FFFFFF",
   "theme_color": "#1B2B7A",
   "icons": [
     {
