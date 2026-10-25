@@ -476,8 +476,62 @@
                 if (loginErr) loginErr.style.display = 'none';
 
                 // Reset flag để lần hết hạn sau còn hoạt động
-                window.__sessionExpiredHandled = false;
-            }, 800);
+            window.__sessionExpiredHandled = false;
+        }, 800);
+        } // <-- Đóng hàm handleSessionExpired
+
+        // ============================================================
+        //  ERROR MAPPING — Dịch mã lỗi sang tiếng Việt
+        // ============================================================
+        const MGR_ERRORS = {
+            'MGR_MISSING_PARAMS': 'Thiếu thông tin yêu cầu.',
+            'MGR_MISSING_ID': 'Thiếu mã quản lý.',
+            'MGR_MISSING_EMAIL': 'Thiếu email quản lý.',
+            'MGR_INVALID': 'Tài khoản quản lý không hợp lệ hoặc đã bị khóa.',
+            'MGR_NOT_FOUND': 'Email không có quyền quản lý quán này.',
+            'MGR_CANNOT_CANCEL': 'Quán không được tự hủy booking đã xác nhận. Vui lòng liên hệ Admin.',
+            
+            'CHECKIN_NOT_FOUND': 'Không tìm thấy thông tin check-in.',
+            'CHECKIN_WRONG_CAFE': 'Check-in này thuộc về quán khác.',
+            'CHECKIN_NOT_COMPLETED': 'Khách chưa check-out nên không thể xác nhận.',
+            'CHECKIN_ALREADY_RESOLVED': 'Bill này đã được xử lý (xác nhận/hủy) từ trước đó.',
+            'CONFIRM_DEADLINE_PASSED': 'Đã quá 10 phút xác nhận. Hệ thống đã tự động chốt bill.',
+            'CHECKIN_ENDED': 'Check-in này đã kết thúc.',
+            
+            'UNDO_LIMIT_REACHED': 'Đã đạt giới hạn hoàn tác (tối đa 2 lần). Không thể hoàn tác thêm.',
+            'UNDO_DEADLINE_PASSED': 'Đã quá thời hạn 10 phút. Không thể hoàn tác.',
+            'UNDO_BLOCKED': 'Chức năng hoàn tác đang bị tạm khóa do tỷ lệ hoàn tác thất bại cao. Vui lòng thử lại sau.',
+            'UNDO_SELF_FORBIDDEN': 'Bạn không thể hoàn tác check-in của chính mình.',
+            'UNDO_RATE_LIMITED': 'Bạn thao tác quá nhanh. Vui lòng thử lại sau 15 phút.',
+            'CHECKIN_LOCKED': 'Check-in này đã bị khóa do vi phạm quy định hoàn tác.',
+            
+            'TABLE_NUMBER_REQUIRED': 'Vui lòng nhập số bàn.',
+            'TABLE_NUMBER_INVALID': 'Số bàn không hợp lệ.',
+            'TABLE_NUMBER_OUT_OF_RANGE': 'Số bàn vượt quá số bàn thực tế của quán.',
+            'TABLE_OCCUPIED': 'Bàn này đang có khách ngồi.',
+            'CAFE_NO_TABLES_CONFIG': 'Quán chưa cấu hình sơ đồ bàn. Vui lòng liên hệ Admin.',
+            
+            'QR_INVALID_FORMAT': 'Mã QR không hợp lệ.',
+            'QR_ALREADY_USED': 'Mã QR này đã được quét sử dụng rồi.',
+            'QR_ALREADY_CONFIRMED': 'Check-in này đã được xác nhận từ trước.',
+            
+            'BOOKING_NOT_FOUND': 'Không tìm thấy thông tin đặt chỗ.',
+            'BOOKING_NO_PERMISSION': 'Bạn không có quyền thao tác trên booking này.',
+            'BOOKING_WRONG_STATUS': 'Trạng thái booking không phù hợp để thực hiện thao tác này.'
+        };
+
+        function getMgrErrorMsg(code, params, fallbackMsg) {
+            if (code && MGR_ERRORS[code]) {
+                let msg = MGR_ERRORS[code];
+                if (params && typeof params === 'object') {
+                    for (const k in params) {
+                        msg = msg.replace(new RegExp('\\{' + k + '\\}', 'g'), params[k]);
+                    }
+                }
+                return msg;
+            }
+            return fallbackMsg || 'Đã có lỗi xảy ra. Vui lòng thử lại.';
+        }, 800);
         }
 
         function showToast(msg, isSuccess = true) {
