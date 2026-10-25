@@ -172,7 +172,7 @@
 
         /* Floating Button (Scan QR) */
         .fab-scan {
-            position: fixed; bottom: 24px; right: 24px;
+            position: fixed; bottom: 90px; right: 24px;
             width: 60px; height: 60px;
             background: var(--navy);
             color: white; border-radius: 50%;
@@ -353,7 +353,7 @@
             <div id="view-revenue" class="pa-view" style="display: none;">
                 
                 <!-- Khung Đối soát -->
-                <div id="list-history" style="width: 100%; display: none; flex-direction: column; gap: 12px;">
+                <div id="list-history" style="width: 100%; display: flex; flex-direction: column; gap: 12px;">
                     <div style="display: flex; gap: 8px;">
                     <input type="month" id="historyMonth" class="input-field" onchange="loadHistoryRevenue()" style="margin-bottom: 0; flex: 1;">
                         <select id="historyPayStatus" class="input-field" onchange="filterAndRenderHistory()" style="margin-bottom: 0; flex: 1;">
