@@ -276,6 +276,20 @@
                     <h3 id="statPending">0</h3>
                 </div>
             </div>
+            
+            <!-- Nút Kết nối Telegram -->
+            <div style="margin-top: 16px; background: rgba(255,255,255,0.1); border-radius: var(--radius-sm); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 8px; color: white;">
+                    <i class="fa-brands fa-telegram" style="font-size: 20px; color: #229ED9;"></i>
+                    <div>
+                        <div style="font-size: 13px; font-weight: 700;">Thông báo Telegram</div>
+                        <div style="font-size: 11px; color: rgba(255,255,255,0.7);" id="tgStatusText">Chưa kết nối</div>
+                    </div>
+                </div>
+                <button id="btnConnectTG" onclick="connectManagerTelegram()" style="background: white; color: var(--navy); border: none; padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 12px; font-family: inherit; cursor: pointer; transition: 0.2s;">
+                    Kết nối
+                </button>
+            </div>
         </header>
 
         <!-- Bao bọc tất cả vào 1 khung có padding chung -->
@@ -479,6 +493,94 @@
             return d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' - ' + d.toLocaleDateString('vi-VN');
         }
 
+                // ============================================================
+        //  TELEGRAM CONNECT CHO MANAGER
+        // ============================================================
+        async function loadManagerTelegramStatus() {
+            if (!managerId || !managerToken) return;
+            try {
+                const res = await mgrFetch(`${CLOUD_FUNCTION_URL}?action=telegramGenSetupLink&managerId=${managerId}&managerToken=${managerToken}`);
+                const data = await res.json();
+                const statusText = document.getElementById('tgStatusText');
+                const btn = document.getElementById('btnConnectTG');
+                
+                if (data.status === 200) {
+                    if (data.already_linked) {
+                        if (statusText) statusText.textContent = 'Đã kết nối (Bấm để ngắt)';
+                        if (btn) {
+                            btn.textContent = 'Ngắt kết nối';
+                            btn.style.background = '#FEF2F2';
+                            btn.style.color = '#DC2626';
+                        }
+                        window.__mgrTgLinked = true;
+                    } else {
+                        if (statusText) statusText.textContent = 'Chưa kết nối';
+                        if (btn) {
+                            btn.textContent = 'Kết nối';
+                            btn.style.background = 'white';
+                            btn.style.color = 'var(--navy)';
+                        }
+                        window.__mgrTgLinked = false;
+                        window.__mgrTgDeepLink = data.deep_link;
+                    }
+                }
+            } catch (e) {
+                console.warn('loadManagerTelegramStatus error:', e);
+            }
+        }
+
+        async function connectManagerTelegram() {
+            if (window.__mgrTgLinked) {
+                // Đã kết nối -> Ngắt kết nối (tạm thời xóa chat_id trên Firestore qua BE)
+                if (!confirm('Bạn có chắc muốn ngắt kết nối Telegram? Bạn sẽ không nhận được thông báo check-out nữa.')) return;
+                
+                try {
+                    const res = await mgrFetch(CLOUD_FUNCTION_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'telegramDisconnectManager', managerId, managerToken })
+                    });
+                    const data = await res.json();
+                    if (data.status === 200) {
+                        showToast('Đã ngắt kết nối Telegram', true);
+                        loadManagerTelegramStatus();
+                    } else {
+                        showToast(data.message || 'Lỗi ngắt kết nối', false);
+                    }
+                } catch (e) {
+                    if (e.message !== 'SESSION_EXPIRED') showToast('Lỗi kết nối', false);
+                }
+                return;
+            }
+
+            // Chưa kết nối -> Mở popup Telegram
+            if (!window.__mgrTgDeepLink) {
+                showToast('Đang tạo link kết nối, vui lòng thử lại...', false);
+                await loadManagerTelegramStatus();
+                if (!window.__mgrTgDeepLink) return;
+            }
+
+            const w = 500, h = 700;
+            const left = (screen.width - w) / 2;
+            const top = (screen.height - h) / 2;
+            const popup = window.open(window.__mgrTgDeepLink, 'TelegramConnect', `width=${w},height=${h},left=${left},top=${top}`);
+
+            // Polling ngầm kiểm tra xem đã kết nối chưa
+            let attempts = 0;
+            const maxAttempts = 60; // 3 phút
+            const interval = setInterval(async () => {
+                attempts++;
+                await loadManagerTelegramStatus();
+                if (window.__mgrTgLinked) {
+                    clearInterval(interval);
+                    if (popup && !popup.closed) popup.close();
+                    showToast('Đã kết nối Telegram thành công!', true);
+                } else if (attempts >= maxAttempts || (popup && popup.closed)) {
+                    clearInterval(interval);
+                }
+            }, 3000);
+        }
+
         async function handleLogin() {
             const email = document.getElementById('loginEmail').value.trim();
             if (!email) return showToast('Vui lòng nhập email', false);
@@ -515,6 +617,7 @@
                     
                     loadDashboard();
                     startDashboardPolling();
+                    loadManagerTelegramStatus(); // Load trạng thái Telegram
                 } else {
                     errDiv.textContent = data.message || 'Đăng nhập thất bại';
                     errDiv.style.display = 'block';
@@ -1013,6 +1116,7 @@
                 document.getElementById('headerCafeName').textContent = cafeName;
                 loadDashboard();
                 startDashboardPolling();
+                loadManagerTelegramStatus();
             }
         };
     </script>
