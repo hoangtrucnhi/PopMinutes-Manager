@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <!-- PWA CONFIGURATION -->
+    <link rel="manifest" href="/PopMinutes-Manager/manifest.json">
+    <link rel="apple-touch-icon" sizes="192x192" href="https://raw.githubusercontent.com/hoangtrucnhi/PopMinutes-PWA/main/launchericon-192x192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="https://raw.githubusercontent.com/hoangtrucnhi/PopMinutes-PWA/main/launchericon-512x512.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#1B2B7A">
     <title>PopMinutes Manager</title>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -217,15 +223,27 @@
 
         /* Toast */
         .toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-20px);
-            padding: 12px 24px; border-radius: 30px;
-            color: white; font-weight: 600; font-size: 14px;
-            opacity: 0; pointer-events: none; transition: 0.3s; z-index: 999;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: fixed; bottom: 30px; left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            padding: 12px 18px; border-radius: 18px;
+            color: white; font-weight: 600; font-size: 14px; font-family: 'Be Vietnam Pro', sans-serif;
+            display: flex; align-items: flex-start; gap: 8px;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 9999; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            white-space: normal; word-break: break-word; text-align: left;
+            width: fit-content; max-width: calc(100vw - 32px); line-height: 1.4;
+            backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2);
         }
         .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-        .toast.success { background: var(--success); }
-        .toast.error { background: var(--danger); }
+        .toast.success { background-color: rgba(27,43,122,0.95); } /* Xanh Navy */
+        .toast.error { background-color: rgba(239,68,68,0.95); }   /* Đỏ */
+        
+        /* Nút cài đặt PWA */
+        #btnInstall {
+            display: none; background-color: #28a745; position: fixed; bottom: 90px; right: 20px; 
+            z-index: 9999; padding: 10px 15px; border: none; border-radius: 30px; 
+            color: white; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
@@ -378,7 +396,10 @@
     </div>
 
     <!-- Toast -->
-    <div id="toast" class="toast"></div>
+        <div id="toast" class="toast"></div>
+    
+    <!-- BUTTON CÀI ĐẶT PWA -->
+    <button id="btnInstall">📥 Cài đặt Ứng dụng</button>
 
     <script>
         const CLOUD_FUNCTION_URL = "https://get-upload-url-test-824148866382.asia-southeast1.run.app";
@@ -1172,6 +1193,42 @@
                 loadManagerTelegramStatus();
             }
         };
+            // ========================================================================
+        //  PWA INSTALLATION LOGIC
+        // ========================================================================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // Đăng ký file sw.js (cậu sẽ tạo ở Bước 3)
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Manager PWA đã kích hoạt thành công tại:', reg.scope))
+                    .catch(err => console.log('Kích hoạt Manager PWA thất bại:', err));
+            });
+        }
+
+        let deferredPrompt;
+        const btnInstall = document.getElementById('btnInstall');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (btnInstall) btnInstall.style.display = 'block';
+        });
+
+        if (btnInstall) {
+            btnInstall.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response to install prompt: ${outcome}`);
+                deferredPrompt = null;
+                btnInstall.style.display = 'none';
+            });
+        }
+
+        window.addEventListener('appinstalled', () => {
+            console.log('PopMinutes Manager đã được cài đặt thành công!');
+            if (btnInstall) btnInstall.style.display = 'none';
+        });    
     </script>
 </body>
 </html>
