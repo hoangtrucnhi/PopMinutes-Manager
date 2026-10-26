@@ -852,6 +852,7 @@
                             <div class="task-meta">
                                 <span><i class="fa-solid fa-chair"></i> Bàn: <b style="color: var(--text);">${c.table_number || 'Chưa xếp'}</b></span>
                                 <span><i class="fa-regular fa-clock"></i> Vào: ${fmtDateTime(c.check_in_at)}</span>
+                                <span><i class="fa-solid fa-users"></i> Tổng: <b>${c.guest_count || 1} ghế</b></span>
                             </div>
                         </div>
                         <div style="text-align: right;">
@@ -945,6 +946,8 @@
                             <div class="task-meta">
                                 <span><i class="fa-regular fa-clock"></i> Hẹn: ${fmtDateTime(b.start_time_iso)}</span>
                                 ${b.note ? `<span><i class="fa-regular fa-note-sticky"></i> ${b.note}</span>` : ''}
+                                <span><i class="fa-solid fa-users"></i> Tổng: <b>${b.guest_count || 1} ghế</b></span>
+${(b.guest_count > 1) ? `<span style="color: #0284C7; font-weight: 700;"><i class="fa-solid fa-mug-hot"></i> Khách đi cùng: Ưu đãi nước</span>` : ''}
                             </div>
                         </div>
                         ${isConfirmed ? `
