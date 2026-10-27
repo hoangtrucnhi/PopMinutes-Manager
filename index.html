@@ -855,6 +855,18 @@
                                 <span><i class="fa-solid fa-users"></i> Tổng: <b>${c.guest_count || 1} ghế</b></span>
                             </div>
                         </div>
+                                            <!-- Khối xác nhận số người -->
+                    ${(c.guest_confirmation_status === 'PENDING_CONFIRMATION') ? `
+                        <div style="margin-top: 10px; padding: 10px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px;">
+                            <div style="font-size: 12px; font-weight: 700; color: #B45309; margin-bottom: 8px;">
+                                ⚠️ Sales báo: <b>${c.actual_guest_count} người</b> (Đặt ${c.guest_count}). Vui lòng xác nhận!
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="submitManagerConfirmGuest('${c.checkin_id}', false, ${c.actual_guest_count}, this)" class="btn-sm primary" style="padding: 6px; font-size: 12px;">Đồng ý</button>
+                                <button onclick="submitManagerRejectGuest('${c.checkin_id}', ${c.guest_count}, this)" class="btn-sm danger" style="padding: 6px; font-size: 12px;">Báo sai</button>
+                            </div>
+                        </div>
+                    ` : ''}
                         <div style="text-align: right;">
                             <div style="font-size: 20px; font-weight: 800; color: ${isConfirmed ? 'var(--success)' : '#F59E0B'};">
                                 ${c.elapsed_hours.toFixed(1)}h
@@ -1321,6 +1333,27 @@
                     btn.disabled = false; btn.innerHTML = orig;
                 }
             } catch(e) { btn.disabled = false; btn.innerHTML = orig; }
+        }
+                async function submitManagerConfirmGuest(checkinId, isReject, actualCount, btn) {
+            const orig = btn.innerHTML;
+            btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            try {
+                const res = await fetch(CLOUD_FUNCTION_URL, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'cafeManagerConfirmGuestArrival', checkinId, managerId, managerToken, isRejected: isReject, actualGuestCount: actualCount })
+                });
+                const data = await res.json();
+                if (data.status === 200) { showToast(isReject ? 'Đã báo sai' : 'Đã xác nhận', true); loadDashboard(); } 
+                else { showToast(data.message || 'Lỗi', false); btn.disabled = false; btn.innerHTML = orig; }
+            } catch(e) { btn.disabled = false; btn.innerHTML = orig; }
+        }
+
+        async function submitManagerRejectGuest(checkinId, maxCount, btn) {
+            const input = prompt(`Nhập số người thực tế đang có mặt (1 đến ${maxCount}):`, "1");
+            if (!input) return;
+            const actual = parseInt(input);
+            if (isNaN(actual) || actual < 1 || actual > maxCount) return showToast('Số người không hợp lệ', false);
+            await submitManagerConfirmGuest(checkinId, true, actual, btn);
         }
     </script>
 </body>
