@@ -875,21 +875,7 @@
                                 ${isConfirmed ? 'Đang ngồi' : 'Chờ quét'}
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- 🚨 PATCH 3: Khối xác nhận khách đến / Báo vắng -->
-                    ${(c.guest_arrival_status === 'PENDING_MANAGER_CONFIRM') ? `
-                        <div style="margin-top: 10px; padding: 10px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px;">
-                            <div style="font-size: 12px; font-weight: 700; color: #B45309; margin-bottom: 8px;">
-                                ⚠️ Sales báo khách đã đến. Vui lòng xác nhận!
-                            </div>
-                            <div style="display: flex; gap: 8px;">
-                                <button onclick="submitManagerConfirmGuest('${c.checkin_id}', false, this)" class="btn-sm primary" style="padding: 6px; font-size: 12px;">Khách đã đến</button>
-                                <button onclick="submitManagerConfirmGuest('${c.checkin_id}', true, this)" class="btn-sm danger" style="padding: 6px; font-size: 12px;">Báo vắng</button>
-                            </div>
-                        </div>
-                    ` : ''}
-                    
+                    </div>                    
                 </div>
                 `;
             }).join('');
@@ -1309,31 +1295,7 @@
             console.log('PopMinutes Cafe đã được cài đặt thành công!');
             if (btnInstall) btnInstall.style.display = 'none';
         });    
-            async function submitManagerConfirmGuest(checkinId, isAbsent, btn) {
-            const orig = btn.innerHTML;
-            btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-            try {
-                const res = await fetch(CLOUD_FUNCTION_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'cafeManagerConfirmGuestArrival',
-                        checkinId: checkinId,
-                        managerId: managerId,
-                        managerToken: managerToken,
-                        isGuestAbsent: isAbsent
-                    })
-                });
-                const data = await res.json();
-                if (data.status === 200) {
-                    showToast(isAbsent ? 'Đã báo vắng' : 'Đã xác nhận khách', true);
-                    loadDashboard();
-                } else {
-                    showToast(data.message || 'Lỗi', false);
-                    btn.disabled = false; btn.innerHTML = orig;
-                }
-            } catch(e) { btn.disabled = false; btn.innerHTML = orig; }
-        }
+    
                 async function submitManagerConfirmGuest(checkinId, isReject, actualCount, btn) {
             const orig = btn.innerHTML;
             btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
