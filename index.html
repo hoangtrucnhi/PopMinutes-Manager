@@ -855,18 +855,6 @@
                                 <span><i class="fa-solid fa-users"></i> Tổng: <b>${c.guest_count || 1} ghế</b></span>
                             </div>
                         </div>
-                                            <!-- Khối xác nhận số người -->
-                    ${(c.guest_confirmation_status === 'PENDING_CONFIRMATION') ? `
-                        <div style="margin-top: 10px; padding: 10px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px;">
-                            <div style="font-size: 12px; font-weight: 700; color: #B45309; margin-bottom: 8px;">
-                                ⚠️ Sales báo: <b>${c.actual_guest_count} người</b> (Đặt ${c.guest_count}). Vui lòng xác nhận!
-                            </div>
-                            <div style="display: flex; gap: 8px;">
-                                <button onclick="submitManagerConfirmGuest('${c.checkin_id}', false, ${c.actual_guest_count}, this)" class="btn-sm primary" style="padding: 6px; font-size: 12px;">Đồng ý</button>
-                                <button onclick="submitManagerRejectGuest('${c.checkin_id}', ${c.guest_count}, this)" class="btn-sm danger" style="padding: 6px; font-size: 12px;">Báo sai</button>
-                            </div>
-                        </div>
-                    ` : ''}
                         <div style="text-align: right;">
                             <div style="font-size: 20px; font-weight: 800; color: ${isConfirmed ? 'var(--success)' : '#F59E0B'};">
                                 ${c.elapsed_hours.toFixed(1)}h
@@ -875,7 +863,20 @@
                                 ${isConfirmed ? 'Đang ngồi' : 'Chờ quét'}
                             </div>
                         </div>
-                    </div>                    
+                    </div>
+                    
+                    <!-- 🚨 KHỐI XÁC NHẬN (Đã đưa ra ngoài task-header) -->
+                    ${(c.guest_confirmation_status === 'PENDING_CONFIRMATION') ? `
+                        <div style="margin-top: 12px; padding: 10px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px;">
+                            <div style="font-size: 12px; font-weight: 700; color: #B45309; margin-bottom: 8px;">
+                                ⚠️ Sales báo thực tế: <b>${c.actual_guest_count} người</b> (Đặt ${c.guest_count}). Vui lòng xác nhận!
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="submitManagerConfirmGuest('${c.checkin_id}', false, ${c.actual_guest_count}, this)" class="btn-sm primary" style="padding: 6px; font-size: 12px;">Đồng ý</button>
+                                <button onclick="submitManagerRejectGuest('${c.checkin_id}', ${c.guest_count}, this)" class="btn-sm danger" style="padding: 6px; font-size: 12px;">Báo sai</button>
+                            </div>
+                        </div>
+                    ` : ''}
                 </div>
                 `;
             }).join('');
