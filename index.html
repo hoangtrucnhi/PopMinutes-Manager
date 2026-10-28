@@ -882,7 +882,7 @@
             }).join('');
         }
 
-                function renderPendingConfirms(confirms) {
+                        function renderPendingConfirms(confirms) {
             const container = document.getElementById('list-confirm');
             if (!confirms || confirms.length === 0) {
                 container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-receipt"></i><p>Không có bill nào chờ xác nhận</p></div>`;
@@ -892,13 +892,9 @@
             container.innerHTML = confirms.map(c => {
                 const isExpired = c.confirmation_deadline_ms > 0 && Date.now() > c.confirmation_deadline_ms;
                 const tableDisplay = c.table_number || 'Chưa xếp'; 
+                const absent = c.absent_count || 0;
+                const penaltyText = absent > 0 ? ` | Vắng: ${absent} | Phụ thu: ${c.penalty_hours}h` : '';
                 
-                // 🚨 Hiển thị chi tiết phụ thu cho Quán xem
-                let penaltyHtml = '';
-                if (c.absent_count > 0) {
-                    penaltyHtml = `<div style="font-size:11.5px; color:#DC2626; margin-top:4px;">Đặt ${c.guest_count} ghế | Vắng: ${c.absent_count} | Phụ thu: ${c.penalty_hours}h</div>`;
-                }
-
                 return `
                 <div class="task-item">
                     <div class="task-header">
@@ -906,8 +902,9 @@
                             <div class="task-title">${c.guest_name}</div>
                             <div class="task-meta">
                                 <span><i class="fa-solid fa-chair"></i> Bàn: <b style="color: var(--text);">${tableDisplay}</b></span>
+                                <span><i class="fa-regular fa-clock"></i> Vào: ${fmtDateTime(c.check_in_at)}</span>
                                 <span><i class="fa-regular fa-clock"></i> Ra: ${fmtDateTime(c.check_out_at)}</span>
-                                ${penaltyHtml}
+                                <span><i class="fa-solid fa-users"></i> Đặt: <b>${c.guest_count || 1} ghế</b> | Thực tế: <b>${c.actual_guest_count || 1} ghế</b>${penaltyText}</span>
                             </div>
                         </div>
                         <div style="text-align: right;">
