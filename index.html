@@ -891,8 +891,14 @@
 
             container.innerHTML = confirms.map(c => {
                 const isExpired = c.confirmation_deadline_ms > 0 && Date.now() > c.confirmation_deadline_ms;
-                const tableDisplay = c.table_number || 'Chưa xếp'; // 🚨 Lấy số bàn
+                const tableDisplay = c.table_number || 'Chưa xếp'; 
                 
+                // 🚨 Hiển thị chi tiết phụ thu cho Quán xem
+                let penaltyHtml = '';
+                if (c.absent_count > 0) {
+                    penaltyHtml = `<div style="font-size:11.5px; color:#DC2626; margin-top:4px;">Đặt ${c.guest_count} ghế | Vắng: ${c.absent_count} | Phụ thu: ${c.penalty_hours}h</div>`;
+                }
+
                 return `
                 <div class="task-item">
                     <div class="task-header">
@@ -901,6 +907,7 @@
                             <div class="task-meta">
                                 <span><i class="fa-solid fa-chair"></i> Bàn: <b style="color: var(--text);">${tableDisplay}</b></span>
                                 <span><i class="fa-regular fa-clock"></i> Ra: ${fmtDateTime(c.check_out_at)}</span>
+                                ${penaltyHtml}
                             </div>
                         </div>
                         <div style="text-align: right;">
