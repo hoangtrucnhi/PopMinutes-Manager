@@ -868,10 +868,10 @@
                     guestControlHtml = `
                         <div style="margin-top: 12px; padding: 10px; background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 8px;">
                             <div style="font-size: 12px; font-weight: 700; color: #1D4ED8; margin-bottom: 8px;">
-                                ℹ️ Bạn đã sửa thành <b>${c.actual_guest_count} người</b>. Được phép sửa thêm 1 lần cuối nếu khách khiếu nại.
+                                ℹ️ Bạn đã sửa thành <b>${c.actual_guest_count} người</b>. Được phép sửa thêm 1 lần cuối nếu có khiếu nại.
                             </div>
                             <div style="display: flex; gap: 8px;">
-                                <button onclick="submitManagerRejectGuest('${c.checkin_id}', ${c.guest_count}, this)" class="btn-sm outline" style="padding: 6px; font-size: 12px;">Sửa lại lần 2</button>
+                                <button onclick="submitManagerRejectGuest('${c.checkin_id}', ${c.guest_count}, this)" class="btn-sm outline" style="padding: 6px; font-size: 12px;">Sửa</button>
                             </div>
                         </div>
                     `;
@@ -879,7 +879,7 @@
                     // Đã chốt
                     guestControlHtml = `
                         <div style="margin-top: 12px; padding: 10px; background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 8px; font-size: 12px; color: #065F46; text-align: center; font-weight: 600;">
-                            <i class="fa-solid fa-lock"></i> Đã chốt: ${c.actual_guest_count} người (Không thể sửa)
+                            <i class="fa-solid fa-lock"></i> Đã chốt: ${c.actual_guest_count} người
                         </div>
                     `;
                 }
