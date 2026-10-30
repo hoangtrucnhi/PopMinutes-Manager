@@ -835,7 +835,7 @@
             }, 20000);
         }
 
-                        function renderActiveCheckins(checkins) {
+                                function renderActiveCheckins(checkins) {
             const container = document.getElementById('list-active');
             if (!checkins || checkins.length === 0) {
                 container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-mug-hot"></i><p>Không có khách đang ngồi</p></div>`;
@@ -865,7 +865,6 @@
                         </div>
                     </div>
                     
-                    <!-- 🚨 KHỐI XÁC NHẬN (Đã đưa ra ngoài task-header) -->
                     ${(c.guest_confirmation_status === 'PENDING_CONFIRMATION') ? `
                         <div style="margin-top: 12px; padding: 10px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px;">
                             <div style="font-size: 12px; font-weight: 700; color: #B45309; margin-bottom: 8px;">
@@ -931,7 +930,7 @@
             }).join('');
         }
 
-        function renderPendingBookings(bookings) {
+                function renderPendingBookings(bookings) {
             const container = document.getElementById('list-pending');
             if (!bookings || bookings.length === 0) {
                 container.innerHTML = `<div class="empty-state"><i class="fa-regular fa-calendar-xmark"></i><p>Không có booking chờ</p></div>`;
