@@ -343,7 +343,7 @@
                 <!-- Tab trượt -->
                 <div class="task-tabs" style="margin: 0 0 16px 0; width: 100%;">
                     <button onclick="switchSubTab('active')" id="tab-active" class="task-tab active">Đang ngồi</button>
-                    <button onclick="switchSubTab('confirm')" id="tab-confirm" class="task-tab">Chờ chốt</button>
+                    <button onclick="switchSubTab('confirm')" id="tab-confirm" class="task-tab">Chờ xác nhận</button>
                 </div>
                 <div id="list-active" style="width: 100%; display: flex; flex-direction: column; gap: 12px;"></div>
                 <div id="list-confirm" style="width: 100%; display: none; flex-direction: column; gap: 12px;"></div>
@@ -357,7 +357,7 @@
                     <div style="display: flex; gap: 8px;">
                     <input type="month" id="historyMonth" class="input-field" onchange="loadHistoryRevenue()" style="margin-bottom: 0; flex: 1;">
                         <select id="historyPayStatus" class="input-field" onchange="filterAndRenderHistory()" style="margin-bottom: 0; flex: 1;">
-                            <option value="all">Tất cả Bill</option>
+                            <option value="all">Tất cả</option>
                             <option value="unpaid" selected>Chưa thanh toán</option>
                             <option value="paid">Đã thanh toán</option>
                         </select>
@@ -375,7 +375,7 @@
                         </div>
                     </div>
                     <div class="task-item" style="padding: 12px; text-align: center; background: #ECFDF5; border: 1px solid #A7F3D0;">
-                        <p style="font-size: 11px; font-weight: 700; color: #065F46; text-transform: uppercase;">PopMinutes đã thanh toán</p>
+                        <p style="font-size: 11px; font-weight: 700; color: #065F46; text-transform: uppercase;">Đã thanh toán</p>
                         <h3 id="statPaid" style="font-size: 20px; font-weight: 800; color: #065F46; margin: 4px 0;">0đ</h3>
                     </div>
                     
@@ -618,7 +618,7 @@
                 
                 if (data.status === 200) {
                     if (data.already_linked) {
-                        if (statusText) statusText.textContent = 'Đã kết nối (Bấm để ngắt)';
+                        if (statusText) statusText.textContent = 'Đã kết nối';
                         if (btn) {
                             btn.textContent = 'Ngắt kết nối';
                             btn.style.background = '#FEF2F2';
@@ -868,7 +868,7 @@
                     ${(c.guest_confirmation_status === 'PENDING_CONFIRMATION') ? `
                         <div style="margin-top: 12px; padding: 10px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px;">
                             <div style="font-size: 12px; font-weight: 700; color: #B45309; margin-bottom: 8px;">
-                                ⚠️ Sales báo thực tế: <b>${c.actual_guest_count} người</b> (Đặt ${c.guest_count}). Vui lòng xác nhận!
+                                ⚠️ Khách báo sử dụng: <b>${c.actual_guest_count} người</b> (Đặt ${c.guest_count}). Vui lòng xác nhận!
                             </div>
                             <div style="display: flex; gap: 8px;">
                                 <button onclick="submitManagerConfirmGuest('${c.checkin_id}', false, ${c.actual_guest_count}, this)" class="btn-sm primary" style="padding: 6px; font-size: 12px;">Đồng ý</button>
@@ -884,7 +884,7 @@
                         function renderPendingConfirms(confirms) {
             const container = document.getElementById('list-confirm');
             if (!confirms || confirms.length === 0) {
-                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-receipt"></i><p>Không có bill nào chờ xác nhận</p></div>`;
+                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-receipt"></i><p>Không có hóa đơn chờ xác nhận</p></div>`;
                 return;
             }
 
