@@ -553,16 +553,16 @@
             'CHECKIN_NOT_FOUND': 'Không tìm thấy thông tin check-in.',
             'CHECKIN_WRONG_CAFE': 'Check-in này thuộc về quán khác.',
             'CHECKIN_NOT_COMPLETED': 'Khách chưa check-out nên không thể xác nhận.',
-            'CHECKIN_ALREADY_RESOLVED': 'Bill này đã được xử lý (xác nhận/hủy) từ trước đó.',
-            'CONFIRM_DEADLINE_PASSED': 'Đã quá 10 phút xác nhận. Hệ thống đã tự động chốt bill.',
-            'CHECKIN_ENDED': 'Check-in này đã kết thúc.',
+            'CHECKIN_ALREADY_RESOLVED': 'Hóa đơn đã được xử lý (xác nhận/hủy) từ trước đó.',
+            'CONFIRM_DEADLINE_PASSED': 'Đã quá 10 phút xác nhận. Hệ thống đã tự động xác nhận hóa đơn.',
+            'CHECKIN_ENDED': 'Phiên này đã kết thúc.',
             
             'UNDO_LIMIT_REACHED': 'Đã đạt giới hạn hoàn tác (tối đa 2 lần). Không thể hoàn tác thêm.',
             'UNDO_DEADLINE_PASSED': 'Đã quá thời hạn 10 phút. Không thể hoàn tác.',
             'UNDO_BLOCKED': 'Chức năng hoàn tác đang bị tạm khóa do tỷ lệ hoàn tác thất bại cao. Vui lòng thử lại sau.',
             'UNDO_SELF_FORBIDDEN': 'Bạn không thể hoàn tác check-in của chính mình.',
             'UNDO_RATE_LIMITED': 'Bạn thao tác quá nhanh. Vui lòng thử lại sau 15 phút.',
-            'CHECKIN_LOCKED': 'Check-in này đã bị khóa do vi phạm quy định hoàn tác.',
+            'CHECKIN_LOCKED': 'Phiên này đã bị khóa do vi phạm quy định hoàn tác.',
             
             'TABLE_NUMBER_REQUIRED': 'Vui lòng nhập số bàn.',
             'TABLE_NUMBER_INVALID': 'Số bàn không hợp lệ.',
@@ -572,7 +572,7 @@
             
             'QR_INVALID_FORMAT': 'Mã QR không hợp lệ.',
             'QR_ALREADY_USED': 'Mã QR này đã được quét sử dụng rồi.',
-            'QR_ALREADY_CONFIRMED': 'Check-in này đã được xác nhận từ trước.',
+            'QR_ALREADY_CONFIRMED': 'Phiên này đã được xác nhận từ trước.',
             
             'BOOKING_NOT_FOUND': 'Không tìm thấy thông tin đặt chỗ.',
             'BOOKING_NO_PERMISSION': 'Bạn không có quyền thao tác trên booking này.',
@@ -855,7 +855,7 @@
                     guestControlHtml = `
                         <div style="margin-top: 12px; padding: 10px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px;">
                             <div style="font-size: 12px; font-weight: 700; color: #B45309; margin-bottom: 8px;">
-                                ⚠️ Sales báo thực tế: <b>${c.actual_guest_count} người</b> (Đặt ${c.guest_count}). Vui lòng xác nhận!
+                                ⚠️ Khách báo thực tế: <b>${c.actual_guest_count} người</b> (Đặt ${c.guest_count}). Vui lòng xác nhận!
                             </div>
                             <div style="display: flex; gap: 8px;">
                                 <button onclick="submitManagerConfirmGuest('${c.checkin_id}', false, ${c.actual_guest_count}, this)" class="btn-sm primary" style="padding: 6px; font-size: 12px;">Đồng ý</button>
@@ -1134,7 +1134,7 @@
                 const data = await res.json();
 
                 if (data.status === 200) {
-                    showToast(action === 'confirm' ? 'Đã xác nhận bill' : 'Đã hoàn tác', true);
+                    showToast(action === 'confirm' ? 'Đã xác nhận' : 'Đã hoàn tác', true);
                     loadDashboard();
                 } else {
                     showToast(getMgrErrorMsg(data.code, data.params, data.message), false);
