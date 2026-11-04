@@ -304,7 +304,7 @@
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 </button>
             </div>
-            <div class="stats-row">
+                        <div class="stats-row" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
                 <div class="stat-box">
                     <p>Đang ngồi</p>
                     <h3 id="statActive">0</h3>
@@ -312,6 +312,10 @@
                 <div class="stat-box">
                     <p>Chờ tới</p>
                     <h3 id="statPending">0</h3>
+                </div>
+                <div class="stat-box" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3);">
+                    <p style="color: #A7F3D0;">Số dư ví</p>
+                    <h3 id="statWallet" style="color: #34D399;">0đ</h3>
                 </div>
             </div>
             
@@ -339,7 +343,7 @@
             </div>
 
             <!-- ================= VIEW: VẬN HÀNH (CHECK-IN) ================= -->
-            <div id="view-operation" class="pa-view">
+                <div id="view-operation" class="pa-view">
                 <!-- Tab trượt -->
                 <div class="task-tabs" style="margin: 0 0 16px 0; width: 100%;">
                     <button onclick="switchSubTab('active')" id="tab-active" class="task-tab active">Đang ngồi</button>
@@ -347,6 +351,16 @@
                 </div>
                 <div id="list-active" style="width: 100%; display: flex; flex-direction: column; gap: 12px;"></div>
                 <div id="list-confirm" style="width: 100%; display: none; flex-direction: column; gap: 12px;"></div>
+
+                <!-- 🚨 KHỐI UPLOAD ẢNH -->
+                <div style="margin-top: 32px; border-top: 1px dashed var(--border); padding-top: 20px;">
+                    <h3 style="font-size: 15px; font-weight: 800; color: var(--navy); margin-bottom: 12px;"><i class="fa-solid fa-camera"></i> Hình ảnh quán (Tối đa 6)</h3>
+                    <div id="mgrImagesList" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px;"></div>
+                    <input type="file" id="mgrImageInput" accept="image/*" multiple style="display: none;" onchange="handleMgrImageSelect(event)">
+                    <button onclick="document.getElementById('mgrImageInput').click()" class="btn-sm primary" style="width: 100%; padding: 10px;">
+                        <i class="fa-solid fa-plus"></i> Thêm ảnh
+                    </button>
+                </div>
             </div>
 
             <!-- ================= VIEW: DOANH THU (REVENUE) ================= -->
@@ -743,7 +757,125 @@
                 icon.style.display = 'inline-block';
             }
         }
+        // ============================================================
+        //  UPLOAD & NÉN ẢNH CHO MANAGER
+        // ============================================================
+        let currentCafeImages = [];
 
+        function renderMgrImages() {
+            const container = document.getElementById('mgrImagesList');
+            if (!container) return;
+            container.innerHTML = currentCafeImages.map((url, idx) => `
+                <div style="position: relative; padding-top: 100%; border-radius: 8px; overflow: hidden; background: #eee;">
+                    <img src="${url}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
+                    <button onclick="removeMgrImage(${idx})" style="position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; width: 24px; height: 24px; border-radius: 50%; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            `).join('');
+        }
+
+        window.removeMgrImage = function(idx) {
+            currentCafeImages.splice(idx, 1);
+            renderMgrImages();
+            saveMgrImages();
+        };
+
+        window.handleMgrImageSelect = async function(event) {
+            const files = event.target.files;
+            if (!files.length) return;
+
+            if (currentCafeImages.length + files.length > 6) {
+                showToast('Chỉ được upload tối đa 6 ảnh', false);
+                return;
+            }
+
+            showToast('Đang nén và tải ảnh lên...', true);
+
+            for (let i = 0; i < files.length; i++) {
+                try {
+                    // 1. Nén ảnh (max 1200px, quality 0.7)
+                    const compressedBlob = await compressImage(files[i], 1200, 1200, 0.7);
+                    
+                    // 2. Lấy Signed URL
+                    const ext = 'jpg';
+                    const res = await mgrFetch(`${CLOUD_FUNCTION_URL}?action=cafeGetImageUploadUrl&managerId=${managerId}&managerToken=${managerToken}&fileExt=${ext}`);
+                    const data = await res.json();
+                    if (data.status !== 200) throw new Error(data.message);
+
+                    // 3. PUT file lên GCS
+                    const uploadRes = await fetch(data.uploadUrl, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'image/jpeg' },
+                        body: compressedBlob
+                    });
+                    if (!uploadRes.ok) throw new Error('Upload GCS thất bại');
+
+                    // 4. Lưu URL vào mảng
+                    currentCafeImages.push(data.publicUrl);
+                } catch (e) {
+                    console.error('Upload error:', e);
+                    showToast('Lỗi upload ảnh: ' + e.message, false);
+                }
+            }
+            
+            renderMgrImages();
+            saveMgrImages();
+            event.target.value = ''; // Reset input
+        };
+
+        async function saveMgrImages() {
+            try {
+                const res = await mgrFetch(CLOUD_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        action: 'cafeManagerUpdateImages',
+                        managerId: managerId,
+                        managerToken: managerToken,
+                        images: JSON.stringify(currentCafeImages)
+                    }).toString()
+                });
+                const data = await res.json();
+                if (data.status === 200) showToast('Đã lưu ảnh quán', true);
+            } catch (e) {
+                showToast('Lỗi lưu ảnh', false);
+            }
+        }
+
+        // Hàm nén ảnh chuẩn HTML5 (chạy trên mọi thiết bị)
+        function compressImage(file, maxWidth, maxHeight, quality) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = event => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > height) {
+                            if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; }
+                        } else {
+                            if (height > maxHeight) { width *= maxHeight / height; height = maxHeight; }
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        canvas.toBlob(blob => resolve(blob), 'image/jpeg', quality);
+                    };
+                    img.onerror = reject;
+                };
+                reader.onerror = reject;
+            });
+        }
+
+        // Gọi hàm này trong loadDashboard để đồng bộ dữ liệu
+        function syncMgrImagesAndWallet(cafeData) {
+            document.getElementById('statWallet').textContent = Number(cafeData.wallet_balance || 0).toLocaleString('vi-VN') + 'đ';
+            currentCafeImages = cafeData.images || [];
+            renderMgrImages();
+        }
         function handleLogout() {
             if (!confirm('Bạn có chắc muốn đăng xuất?')) return;
             localStorage.removeItem('pm_manager_token');
@@ -793,8 +925,12 @@
                 const data = await res.json();
 
                 if (data.status === 200) {
+                if (data.status === 200) {
                     document.getElementById('statActive').textContent = data.active_count;
                     document.getElementById('statPending').textContent = data.pending_count;
+                    
+                    // 🚨 CẬP NHẬT VÍ VÀ ẢNH
+                    syncMgrImagesAndWallet(data.cafe);
 
                     renderActiveCheckins(data.active_checkins);
                     renderPendingConfirms(data.pending_confirms || []);
