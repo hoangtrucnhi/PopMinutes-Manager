@@ -924,30 +924,7 @@
             document.getElementById('list-confirm').style.display = (tab === 'confirm') ? 'flex' : 'none';
         }
 
-                async function loadDashboard() {
-            if (!managerId || !managerToken) return;
-            try {
-                const res = await mgrFetch(`${CLOUD_FUNCTION_URL}?action=cafeManagerGetStats&managerId=${managerId}&managerToken=${managerToken}`);
-                const data = await res.json();
-
-                if (data.status === 200) {
-                if (data.status === 200) {
-                    document.getElementById('statActive').textContent = data.active_count;
-                    document.getElementById('statPending').textContent = data.pending_count;
-                    
-                    // 🚨 CẬP NHẬT VÍ VÀ ẢNH
-              async function loadDashboard() {
-            if (!managerId || !managerToken) return;
-            try {
-                const res = await mgrFetch(`${CLOUD_FUNCTION_URL}?action=cafeManagerGetStats&managerId=${managerId}&managerToken=${managerToken}`);
-                const data = await res.json();
-
-                if (data.status === 200) {
-                    document.getElementById('statActive').textContent = data.active_count;
-                    document.getElementById('statPending').textContent = data.pending_count;
-                    
-                    // 🚨 CẬP NHẬT VÍ VÀ ẢNH
-               async function loadDashboard() {
+                  async function loadDashboard() {
             if (!managerId || !managerToken) return;
             try {
                 const res = await mgrFetch(`${CLOUD_FUNCTION_URL}?action=cafeManagerGetStats&managerId=${managerId}&managerToken=${managerToken}`);
@@ -969,7 +946,7 @@
                 console.error('Load dashboard error:', e);
             }
         }
-
+       
         // ============================================================
         //  VISIBILITY POLLING — Dừng khi ẩn tab, refresh khi mở lại
         // ============================================================
