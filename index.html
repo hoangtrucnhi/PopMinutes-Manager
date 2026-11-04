@@ -776,9 +776,12 @@
             `).join('');
         }
 
-        window.removeMgrImage = function(idx) {
+                window.removeMgrImage = function(idx) {
             currentCafeImages.splice(idx, 1);
-            window.handleMgrImageSelect = async function(event) {
+            renderMgrImages();
+        };
+
+        window.handleMgrImageSelect = async function(event) {
             const files = event.target.files;
             if (!files.length) return;
 
