@@ -947,6 +947,17 @@
                     document.getElementById('statPending').textContent = data.pending_count;
                     
                     // 🚨 CẬP NHẬT VÍ VÀ ẢNH
+               async function loadDashboard() {
+            if (!managerId || !managerToken) return;
+            try {
+                const res = await mgrFetch(`${CLOUD_FUNCTION_URL}?action=cafeManagerGetStats&managerId=${managerId}&managerToken=${managerToken}`);
+                const data = await res.json();
+
+                if (data.status === 200) {
+                    document.getElementById('statActive').textContent = data.active_count;
+                    document.getElementById('statPending').textContent = data.pending_count;
+                    
+                    // 🚨 CẬP NHẬT VÍ VÀ ẢNH
                     syncMgrImagesAndWallet(data.cafe);
 
                     renderActiveCheckins(data.active_checkins);
