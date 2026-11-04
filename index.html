@@ -1187,23 +1187,30 @@
         }
         // ================= QR SCANNER =================
         function openQRModal() {
-            document.getElementById('qrModal').classList.add('active');
-            document.getElementById('tableInputWrap').style.display = 'none';
-            document.getElementById('qrResult').style.display = 'none';
-            document.getElementById('inputTableNumber').value = '';
-            document.getElementById('tableError').style.display = 'none';
-            scannedQrContent = null;
+    document.getElementById('qrModal').classList.add('active');
+    document.getElementById('tableInputWrap').style.display = 'none';
+    document.getElementById('qrResult').style.display = 'none';
+    document.getElementById('inputTableNumber').value = '';
+    document.getElementById('tableError').style.display = 'none';
+    scannedQrContent = null;
 
-            qrScanner = new Html5Qrcode("qr-reader");
-            qrScanner.start(
-                { facingMode: "environment" },
-                { fps: 10, qrbox: { width: 250, height: 250 } },
-                onQRScanSuccess
-            ).catch(err => {
-                showToast('Lỗi Camera: ' + err, false);
-                closeQRModal();
-            });
-        }
+    // 🚨 FIX: Reset nút Confirm (xóa spinner còn sót từ lần quét trước)
+    const btnQR = document.getElementById('btnSubmitQR');
+    if (btnQR) {
+        btnQR.disabled = false;
+        btnQR.innerHTML = 'Xác nhận';
+    }
+
+    qrScanner = new Html5Qrcode("qr-reader");
+    qrScanner.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        onQRScanSuccess
+    ).catch(err => {
+        showToast('Lỗi Camera: ' + err, false);
+        closeQRModal();
+    });
+}
 
         async function closeQRModal() {
             if (qrScanner) {
@@ -1255,10 +1262,13 @@
                 const data = await res.json();
 
                 if (data.status === 200) {
-                    showToast('Xác nhận QR thành công!', true);
-                    closeQRModal();
-                    loadDashboard();
-                } else if (data.status === 409 && data.code === 'TABLE_OCCUPIED') {
+    showToast('Xác nhận QR thành công!', true);
+    // 🚨 FIX: Khôi phục nút TRƯỚC khi đóng modal
+    btn.disabled = false;
+    btn.innerHTML = origHTML;
+    closeQRModal();
+    loadDashboard();
+} else if (data.status === 409 && data.code === 'TABLE_OCCUPIED') {
                     if (confirm(`${data.message}\n\nBạn có muốn ghép bàn không?`)) {
                         document.getElementById('chkMergeTable').checked = true;
                         submitQRConfirm();
