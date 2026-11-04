@@ -342,12 +342,17 @@
                 <div id="list-pending" style="width: 100%; display: flex; flex-direction: column; gap: 12px;"></div>
             </div>
 
-            <!-- ================= VIEW: VẬN HÀNH (CHECK-IN) ================= -->
-                <div id="view-operation" class="pa-view">
+                      <!-- ================= VIEW: VẬN HÀNH (CHECK-IN) ================= -->
+            <div id="view-operation" class="pa-view">
                 <!-- Tab trượt -->
                 <div class="task-tabs" style="margin: 0 0 16px 0; width: 100%;">
                     <button onclick="switchSubTab('active')" id="tab-active" class="task-tab active">Đang ngồi</button>
-                                       <!-- 🚨 KHỐI UPLOAD ẢNH -->
+                    <button onclick="switchSubTab('confirm')" id="tab-confirm" class="task-tab">Chờ xác nhận</button>
+                </div>
+                <div id="list-active" style="width: 100%; display: flex; flex-direction: column; gap: 12px;"></div>
+                <div id="list-confirm" style="width: 100%; display: none; flex-direction: column; gap: 12px;"></div>
+
+                <!-- 🚨 KHỐI UPLOAD ẢNH -->
                 <div style="margin-top: 32px; border-top: 1px dashed var(--border); padding-top: 20px;">
                     <h3 style="font-size: 15px; font-weight: 800; color: var(--navy); margin-bottom: 12px;"><i class="fa-solid fa-camera"></i> Hình ảnh quán (Tối đa 6)</h3>
                     <div id="mgrImagesList" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px;"></div>
@@ -773,21 +778,7 @@
 
         window.removeMgrImage = function(idx) {
             currentCafeImages.splice(idx, 1);
-            renderMgrImages();
-            
-        };
-
-        window.handleMgrImageSelect = async function(event) {
-            const files = event.target.files;
-            if (!files.length) return;
-
-            if (currentCafeImages.length + files.length > 6) {
-                showToast('Chỉ được upload tối đa 6 ảnh', false);
-                return;
-            }
-
-            showToast('Đang nén và tải ảnh lên...', true);
-        window.handleMgrImageSelect = async function(event) {
+            window.handleMgrImageSelect = async function(event) {
             const files = event.target.files;
             if (!files.length) return;
 
@@ -814,6 +805,7 @@
                     });
                     if (!uploadRes.ok) throw new Error('Upload GCS thất bại');
 
+                    // 🚨 Lưu filePath (đường dẫn gốc) thay vì publicUrl
                     currentCafeImages.push(data.filePath);
                 } catch (e) {
                     console.error('Upload error:', e);
@@ -822,7 +814,7 @@
             }
             
             renderMgrImages();
-            // 🚨 BỎ DÒNG saveMgrImages() Ở ĐÂY
+            // 🚨 KHÔNG gọi saveMgrImages() ở đây, để user tự bấm nút "Lưu thay đổi"
             event.target.value = '';
         };
 
