@@ -872,7 +872,13 @@
 
         // Gọi hàm này trong loadDashboard để đồng bộ dữ liệu
         function syncMgrImagesAndWallet(cafeData) {
-            document.getElementById('statWallet').textContent = Number(cafeData.wallet_balance || 0).toLocaleString('vi-VN') + 'đ';
+            if (!cafeData) return; // 🚨 BẢO VỆ: Nếu BE không trả về data thì bỏ qua
+            
+            const walletEl = document.getElementById('statWallet');
+            if (walletEl) {
+                walletEl.textContent = Number(cafeData.wallet_balance || 0).toLocaleString('vi-VN') + 'đ';
+            }
+            
             currentCafeImages = cafeData.images || [];
             renderMgrImages();
         }
