@@ -347,18 +347,16 @@
                 <!-- Tab trượt -->
                 <div class="task-tabs" style="margin: 0 0 16px 0; width: 100%;">
                     <button onclick="switchSubTab('active')" id="tab-active" class="task-tab active">Đang ngồi</button>
-                    <button onclick="switchSubTab('confirm')" id="tab-confirm" class="task-tab">Chờ xác nhận</button>
-                </div>
-                <div id="list-active" style="width: 100%; display: flex; flex-direction: column; gap: 12px;"></div>
-                <div id="list-confirm" style="width: 100%; display: none; flex-direction: column; gap: 12px;"></div>
-
-                <!-- 🚨 KHỐI UPLOAD ẢNH -->
+                                       <!-- 🚨 KHỐI UPLOAD ẢNH -->
                 <div style="margin-top: 32px; border-top: 1px dashed var(--border); padding-top: 20px;">
                     <h3 style="font-size: 15px; font-weight: 800; color: var(--navy); margin-bottom: 12px;"><i class="fa-solid fa-camera"></i> Hình ảnh quán (Tối đa 6)</h3>
                     <div id="mgrImagesList" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px;"></div>
                     <input type="file" id="mgrImageInput" accept="image/*" multiple style="display: none;" onchange="handleMgrImageSelect(event)">
-                    <button onclick="document.getElementById('mgrImageInput').click()" class="btn-sm primary" style="width: 100%; padding: 10px;">
+                    <button onclick="document.getElementById('mgrImageInput').click()" class="btn-sm outline" style="width: 100%; padding: 10px; margin-bottom: 8px;">
                         <i class="fa-solid fa-plus"></i> Thêm ảnh
+                    </button>
+                    <button onclick="saveMgrImages()" class="btn-sm primary" style="width: 100%; padding: 12px; font-size: 14px;">
+                        <i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi
                     </button>
                 </div>
             </div>
@@ -776,9 +774,19 @@
         window.removeMgrImage = function(idx) {
             currentCafeImages.splice(idx, 1);
             renderMgrImages();
-            saveMgrImages();
+            
         };
 
+        window.handleMgrImageSelect = async function(event) {
+            const files = event.target.files;
+            if (!files.length) return;
+
+            if (currentCafeImages.length + files.length > 6) {
+                showToast('Chỉ được upload tối đa 6 ảnh', false);
+                return;
+            }
+
+            showToast('Đang nén và tải ảnh lên...', true);
         window.handleMgrImageSelect = async function(event) {
             const files = event.target.files;
             if (!files.length) return;
@@ -792,16 +800,13 @@
 
             for (let i = 0; i < files.length; i++) {
                 try {
-                    // 1. Nén ảnh (max 1200px, quality 0.7)
                     const compressedBlob = await compressImage(files[i], 1200, 1200, 0.7);
                     
-                    // 2. Lấy Signed URL
                     const ext = 'jpg';
                     const res = await mgrFetch(`${CLOUD_FUNCTION_URL}?action=cafeGetImageUploadUrl&managerId=${managerId}&managerToken=${managerToken}&fileExt=${ext}`);
                     const data = await res.json();
                     if (data.status !== 200) throw new Error(data.message);
 
-                    // 3. PUT file lên GCS
                     const uploadRes = await fetch(data.uploadUrl, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'image/jpeg' },
@@ -809,8 +814,7 @@
                     });
                     if (!uploadRes.ok) throw new Error('Upload GCS thất bại');
 
-                    // 4. Lưu URL vào mảng
-                    currentCafeImages.push(data.publicUrl);
+                    currentCafeImages.push(data.filePath);
                 } catch (e) {
                     console.error('Upload error:', e);
                     showToast('Lỗi upload ảnh: ' + e.message, false);
@@ -818,8 +822,8 @@
             }
             
             renderMgrImages();
-            saveMgrImages();
-            event.target.value = ''; // Reset input
+            // 🚨 BỎ DÒNG saveMgrImages() Ở ĐÂY
+            event.target.value = '';
         };
 
         async function saveMgrImages() {
