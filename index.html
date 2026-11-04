@@ -765,17 +765,18 @@
         // ============================================================
         let currentCafeImages = [];
 
-        function renderMgrImages() {
+                function renderMgrImages() {
             const container = document.getElementById('mgrImagesList');
             if (!container) return;
-            container.innerHTML = currentCafeImages.map((url, idx) => `
+            container.innerHTML = currentCafeImages.map((item, idx) => {
+                const url = item.url || item; // Hỗ trợ cả object mới và string cũ
+                return `
                 <div style="position: relative; padding-top: 100%; border-radius: 8px; overflow: hidden; background: #eee;">
                     <img src="${url}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
                     <button onclick="removeMgrImage(${idx})" style="position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; width: 24px; height: 24px; border-radius: 50%; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
                 </div>
-            `).join('');
+            `}).join('');
         }
-
                 window.removeMgrImage = function(idx) {
             currentCafeImages.splice(idx, 1);
             renderMgrImages();
@@ -809,7 +810,7 @@
                     if (!uploadRes.ok) throw new Error('Upload GCS thất bại');
 
                     // 🚨 Lưu filePath (đường dẫn gốc) thay vì publicUrl
-                    currentCafeImages.push(data.filePath);
+                    currentCafeImages.push({ path: data.filePath, url: data.publicUrl });
                 } catch (e) {
                     console.error('Upload error:', e);
                     showToast('Lỗi upload ảnh: ' + e.message, false);
@@ -821,8 +822,9 @@
             event.target.value = '';
         };
 
-        async function saveMgrImages() {
+                async function saveMgrImages() {
             try {
+                const paths = currentCafeImages.map(item => item.path || item);
                 const res = await mgrFetch(CLOUD_FUNCTION_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -830,7 +832,7 @@
                         action: 'cafeManagerUpdateImages',
                         managerId: managerId,
                         managerToken: managerToken,
-                        images: JSON.stringify(currentCafeImages)
+                        images: JSON.stringify(paths)
                     }).toString()
                 });
                 const data = await res.json();
@@ -839,7 +841,6 @@
                 showToast('Lỗi lưu ảnh', false);
             }
         }
-
         // Hàm nén ảnh chuẩn HTML5 (chạy trên mọi thiết bị)
         function compressImage(file, maxWidth, maxHeight, quality) {
             return new Promise((resolve, reject) => {
