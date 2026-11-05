@@ -872,16 +872,23 @@
 
         // Gọi hàm này trong loadDashboard để đồng bộ dữ liệu
         function syncMgrImagesAndWallet(cafeData) {
-            if (!cafeData) return; // 🚨 BẢO VỆ: Nếu BE không trả về data thì bỏ qua
-            
-            const walletEl = document.getElementById('statWallet');
-            if (walletEl) {
-                walletEl.textContent = Number(cafeData.wallet_balance || 0).toLocaleString('vi-VN') + 'đ';
-            }
-            
-            currentCafeImages = cafeData.images || [];
-            renderMgrImages();
-        }
+    if (!cafeData) return; 
+    
+    const walletEl = document.getElementById('statWallet');
+    if (walletEl) {
+        walletEl.textContent = Number(cafeData.wallet_balance || 0).toLocaleString('vi-VN') + 'đ';
+    }
+    
+    const newImages = cafeData.images || [];
+    // Chỉ cập nhật nếu số lượng ảnh thay đổi HOẶC đường dẫn ảnh (path) bị thay đổi
+    const hasChanged = newImages.length !== currentCafeImages.length || 
+                       newImages.some((img, i) => (img.path || img) !== (currentCafeImages[i]?.path || currentCafeImages[i]));
+
+    if (hasChanged) {
+        currentCafeImages = newImages;
+        renderMgrImages();
+    }
+}
         function handleLogout() {
             if (!confirm('Bạn có chắc muốn đăng xuất?')) return;
             localStorage.removeItem('pm_manager_token');
