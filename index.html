@@ -339,17 +339,17 @@
                 </div>
                 
                 <div class="rev-stats">
-                    <div class="rev-stat-box" style="background: var(--navy-pale); border-color: var(--navy-light);">
+                    <div class="rev-stat-box">
                         <div class="rev-stat-value" id="statTotalRevenue" style="color: var(--navy);">0đ</div>
-                        <div class="rev-stat-label" style="color: var(--navy);">Tổng doanh thu</div>
+                        <div class="rev-stat-label">Tổng doanh thu</div>
                     </div>
-                    <div class="rev-stat-box" style="background: #FEF2F2; border-color: #FECACA;">
-                        <div class="rev-stat-value" id="statUnpaid" style="color: #991B1B;">0đ</div>
-                        <div class="rev-stat-label" style="color: #991B1B;">Chưa thanh toán</div>
+                    <div class="rev-stat-box">
+                        <div class="rev-stat-value" id="statUnpaid" style="color: #DC2626;">0đ</div>
+                        <div class="rev-stat-label">Chưa thanh toán</div>
                     </div>
-                    <div class="rev-stat-box" style="grid-column: span 2; background: #ECFDF5; border-color: #A7F3D0;">
-                        <div class="rev-stat-value" id="statPaid" style="color: #065F46;">0đ</div>
-                        <div class="rev-stat-label" style="color: #065F46;">Đã thanh toán</div>
+                    <div class="rev-stat-box" style="grid-column: span 2;">
+                        <div class="rev-stat-value" id="statPaid" style="color: #10B981;">0đ</div>
+                        <div class="rev-stat-label">Đã thanh toán</div>
                     </div>
                 </div>
                 
@@ -590,7 +590,6 @@
             // Về màn login sau 800ms (để user kịp đọc toast)
             setTimeout(() => {
                 document.getElementById('dashboard-screen').style.display = 'none';
-                document.getElementById('fabScan').style.display = 'none';
                 document.getElementById('login-screen').style.display = 'flex';
 
                 // Reset form login
@@ -795,7 +794,7 @@
 
                     document.getElementById('login-screen').style.display = 'none';
                     document.getElementById('dashboard-screen').style.display = 'block';
-                    document.getElementById('fabScan').style.display = 'flex';
+                    
                     document.getElementById('headerCafeName').textContent = cafeName;
                     
                     // PHÂN QUYỀN: Nếu là Staff thì ẩn Doanh thu & Cài đặt
@@ -1536,7 +1535,6 @@
             if (managerToken && managerId && cafeName) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dashboard-screen').style.display = 'block';
-                document.getElementById('fabScan').style.display = 'flex';
                 document.getElementById('headerCafeName').textContent = cafeName;
                 loadDashboard();
                 startDashboardPolling();
