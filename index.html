@@ -1678,7 +1678,7 @@
             }
         }
 
-                async function loadStaffList() {
+                        async function loadStaffList() {
             const role = localStorage.getItem('pm_role');
             if (role === 'staff') return; 
 
@@ -1686,9 +1686,9 @@
             container.innerHTML = '<div style="font-size: 12px; color: var(--muted); text-align: center;">Đang tải...</div>';
 
             try {
+                // Chỉ gửi managerId, managerToken, cafeId. KHÔNG GỬI mgrEmail
                 const res = await mgrFetch(`${CLOUD_FUNCTION_URL}?action=cafeManagerListStaff&managerId=${managerId}&managerToken=${managerToken}&cafeId=${cafeId}`);
                 const data = await res.json();
-                console.log('Staff list data:', data); // Debug
 
                 if (data.status === 200 && data.staffs) {
                     if (data.staffs.length === 0) {
@@ -1731,7 +1731,7 @@
                     showToast('Đã thêm nhân viên', true);
                     document.getElementById('newStaffEmail').value = '';
                     document.getElementById('newStaffName').value = '';
-                    loadStaffList();
+                    loadStaffList(); // Load lại danh sách sau khi thêm
                 } else {
                     showToast(data.message, false);
                 }
