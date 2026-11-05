@@ -1426,37 +1426,63 @@
             }
         }
         // ================= QR SCANNER =================
-        function openQRModal() {
-    document.getElementById('qrModal').classList.add('active');
-    document.getElementById('tableInputWrap').style.display = 'none';
-    document.getElementById('qrResult').style.display = 'none';
-    document.getElementById('inputTableNumber').value = '';
-    document.getElementById('tableError').style.display = 'none';
-    scannedQrContent = null;
+        function         function openQRModal() {
+            document.getElementById('qrModal').classList.add('active');
+            document.getElementById('tableInputWrap').style.display = 'none';
+            document.getElementById('qrResult').style.display = 'none';
+            document.getElementById('inputTableNumber').value = '';
+            document.getElementById('tableError').style.display = 'none';
+            scannedQrContent = null;
 
-    // 🚨 FIX: Reset nút Confirm (xóa spinner còn sót từ lần quét trước)
-    const btnQR = document.getElementById('btnSubmitQR');
-    if (btnQR) {
-        btnQR.disabled = false;
-        btnQR.innerHTML = 'Xác nhận';
-    }
+            const btnQR = document.getElementById('btnSubmitQR');
+            if (btnQR) {
+                btnQR.disabled = false;
+                btnQR.innerHTML = 'Xác nhận';
+            }
 
-    qrScanner = new Html5Qrcode("qr-reader");
-    qrScanner.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        onQRScanSuccess
-    ).catch(err => {
-        showToast('Lỗi Camera: ' + err, false);
-        closeQRModal();
-    });
-}
+            qrScanner = new Html5Qrcode("qr-reader");
+            // Thêm cấu hình để hỗ trợ nhiều loại camera trên Tablet tốt hơn
+            qrScanner.start(
+                { facingMode: "environment" }, 
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                onQRScanSuccess
+            ).catch(err => {
+                console.error("Camera Error:", err);
+                let msg = 'Không thể mở Camera. Vui lòng kiểm tra lại thiết bị.';
+                if (err.toString().includes('NotFoundError') || err.toString().includes('Requested device not found')) {
+                    msg = 'Thiết bị không tìm thấy Camera. Vui lòng dùng thiết bị khác.';
+                } else if (err.toString().includes('NotAllowedError') || err.toString().includes('Permission denied')) {
+                    msg = 'Bạn chưa cấp quyền Camera. Hãy vào Cài đặt trình duyệt để cấp quyền.';
+                } else if (err.toString().includes('NotReadableError') || err.toString().includes('Could not start video source')) {
+                    msg = 'Camera đang bị ứng dụng khác chiếm dụng. Vui lòng tắt các app đang dùng Camera.';
+                }
+                
+                showToast(msg, false);
+                closeQRModal(); 
+            });
+        }
 
         async function closeQRModal() {
             if (qrScanner) {
-                try { await qrScanner.stop(); qrScanner.clear(); } catch(e){}
-                qrScanner = null;
+                try {
+                    // Cố gắng stop an toàn
+                    await qrScanner.stop();
+                } catch (e) {
+                    console.warn('Lỗi khi stop camera:', e);
+                }
+                try {
+                    // Dọn dẹp DOM và nhả stream
+                    qrScanner.clear();
+                } catch (e) {
+                    console.warn('Lỗi khi clear camera:', e);
+                }
+                qrScanner = null; // Xóa biến toàn cục
             }
+            
+            // Đảm bảo thẻ div chứa camera không còn video cũ
+            const reader = document.getElementById('qr-reader');
+            if (reader) reader.innerHTML = '';
+            
             document.getElementById('qrModal').classList.remove('active');
         }
 
