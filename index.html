@@ -988,14 +988,19 @@
         }
 
                 // Hàm chuyển Menu chính (Bottom Nav)
-        function switchMainMenu(menu) {
+                function switchMainMenu(menu) {
             document.querySelectorAll('nav.bottom-nav .nav-item').forEach(el => {
                 el.classList.toggle('active', el.dataset.menu === menu);
             });
 
             document.querySelectorAll('.pa-view').forEach(el => el.style.display = 'none');
             const targetView = document.getElementById('view-' + menu);
-            if (targetView) targetView.style.display = 'block';
+            
+            if (targetView) {
+                targetView.style.display = 'block';
+            } else {
+                console.error('Không tìm thấy view:', 'view-' + menu);
+            }
 
             if (menu === 'revenue') {
                 loadHistoryRevenue();
@@ -1003,6 +1008,8 @@
                 loadDashboard();
             } else if (menu === 'settings') {
                 loadStaffList();
+                // Gọi loadDashboard ngầm để fill data vào các ô input (Tên, địa chỉ, ví...)
+                loadDashboard();
             }
         }
 
