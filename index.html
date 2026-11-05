@@ -420,7 +420,7 @@
                         </div>
                         <div>
                             <label style="display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px;">Tier (1=Free, 2=Paid)</label>
-                            <input type="number" id="setCafeTier" class="input-field" style="margin-bottom: 0;" min="1" max="2">
+                            <input type="number" id="setCafeTier" class="input-field" style="margin-bottom: 0; background: #E2E8F0; cursor: not-allowed;" min="1" max="2" disabled>
                         </div>
                     </div>
                     
@@ -1025,7 +1025,7 @@
             document.getElementById('list-confirm').style.display = (tab === 'confirm') ? 'flex' : 'none';
         }
 
-        async function loadDashboard() {
+                async function loadDashboard() {
             if (!managerId || !managerToken) return;
             try {
                 const res = await mgrFetch(`${CLOUD_FUNCTION_URL}?action=cafeManagerGetStats&managerId=${managerId}&managerToken=${managerToken}`);
@@ -1035,10 +1035,10 @@
                     document.getElementById('statActive').textContent = data.active_count;
                     document.getElementById('statPending').textContent = data.pending_count;
                     
-                    // Cập nhật Wallet & Images
+                    // 🚨 Cập nhật Wallet & Images
                     syncMgrImagesAndWallet(data.cafe);
 
-                    // Cập nhật thông tin Settings
+                    // 🚨 Cập nhật thông tin Settings
                     const c = data.cafe;
                     if (c) {
                         document.getElementById('setCafeName').value = c.name || '';
@@ -1047,8 +1047,10 @@
                             document.getElementById('setCafeLat').value = c.location.lat || '';
                             document.getElementById('setCafeLng').value = c.location.lng || '';
                         }
-                        document.getElementById('setCafeMaxSeats').value = c.max_seats || '';
+                        document.getElementById('setCafeMaxSeats').value = c.max_seats || ''; // Sẽ hết bị mất
                         document.getElementById('setCafeTier').value = c.tier || 2;
+                        
+                        // Cập nhật đánh giá & review
                         document.getElementById('setCafeRating').innerHTML = `${c.avg_rating || 0} <i class="fa-solid fa-star" style="color:#FCD34D; font-size:12px;"></i>`;
                         document.getElementById('setCafeReviewCount').textContent = c.total_reviews || 0;
                         document.getElementById('setCafeWallet').textContent = Number(c.wallet_balance || 0).toLocaleString('vi-VN') + 'đ';
@@ -1670,9 +1672,9 @@
             }
         }
 
-        async function loadStaffList() {
+                async function loadStaffList() {
             const role = localStorage.getItem('pm_role');
-            if (role === 'staff') return; // Staff không thấy box này
+            if (role === 'staff') return; 
 
             const container = document.getElementById('staffList');
             container.innerHTML = '<div style="font-size: 12px; color: var(--muted); text-align: center;">Đang tải...</div>';
@@ -1680,6 +1682,8 @@
             try {
                 const res = await mgrFetch(`${CLOUD_FUNCTION_URL}?action=cafeManagerListStaff&managerId=${managerId}&managerToken=${managerToken}&cafeId=${cafeId}`);
                 const data = await res.json();
+                console.log('Staff list data:', data); // Debug
+
                 if (data.status === 200 && data.staffs) {
                     if (data.staffs.length === 0) {
                         container.innerHTML = '<div style="font-size: 12px; color: var(--muted); text-align: center;">Chưa có nhân viên nào</div>';
@@ -1694,9 +1698,11 @@
                             </div>
                         `).join('');
                     }
+                } else {
+                    container.innerHTML = `<div style="font-size: 12px; color: var(--danger);">Lỗi: ${data.message || 'Không thể tải'}</div>`;
                 }
             } catch (e) {
-                container.innerHTML = '<div style="font-size: 12px; color: var(--danger); text-align: center;">Lỗi tải danh sách</div>';
+                container.innerHTML = '<div style="font-size: 12px; color: var(--danger); text-align: center;">Lỗi kết nối Server</div>';
             }
         }
 
