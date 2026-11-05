@@ -791,14 +791,9 @@
                     
                     document.getElementById('headerCafeName').textContent = cafeName;
                     
-                    // PHÂN QUYỀN: Nếu là Staff thì ẩn Doanh thu & Cài đặt
-                    if (role === 'staff') {
-                        document.getElementById('nav-revenue').style.display = 'none';
-                        document.getElementById('nav-settings').style.display = 'none';
-                    } else {
-                        document.getElementById('nav-revenue').style.display = 'flex';
-                        document.getElementById('nav-settings').style.display = 'flex';
-                    }
+                    // 🚨 GỌI HÀM PHÂN QUYỀN CHUẨN
+                    localStorage.setItem('pm_role', role);
+                    applyRolePermissions();
 
                     loadDashboard();
                     startDashboardPolling();
@@ -955,8 +950,15 @@
         }
 
                 // Hàm chuyển Menu chính (Bottom Nav)
-            function switchMainMenu(menu) {
-            // 🚨 CHẶN QUÁN CẤP 1 VÀO DOANH THU
+            function function switchMainMenu(menu) {
+            // 🚨 CHẶN STAFF TRUY CẬP TRÁI PHÉP
+            const role = localStorage.getItem('pm_role') || 'manager';
+            if (role === 'staff' && (menu === 'revenue' || menu === 'settings')) {
+                showToast('Bạn không có quyền truy cập mục này', false);
+                return;
+            }
+
+            // 🚨 CHẶN QUÁN CẤP 1 VÀO DOANH THU (Cái này của cậu cũ)
             if (menu === 'revenue') {
                 const tierText = document.getElementById('headerCafeTier').textContent;
                 if (tierText.includes('cấp 1')) {
@@ -1563,6 +1565,7 @@
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dashboard-screen').style.display = 'block';
                 document.getElementById('headerCafeName').textContent = cafeName;
+                applyRolePermissions(); // 🚨 THÊM DÒNG NÀY ĐỂ F5 KHÔNG BỊ HIỆN LẠI TAB
                 loadDashboard();
                 startDashboardPolling();
                 loadManagerTelegramStatus();
@@ -1758,6 +1761,30 @@
                 }
             } catch (e) {
                 if (e.message !== 'SESSION_EXPIRED') showToast('Lỗi kết nối', false);
+            }
+        }
+            // ============================================================
+        //  PHÂN QUYỀN (ROLE-BASED ACCESS CONTROL)
+        // ============================================================
+        function applyRolePermissions() {
+            const role = localStorage.getItem('pm_role') || 'manager';
+            const navRev = document.getElementById('nav-revenue');
+            const navSet = document.getElementById('nav-settings');
+
+            if (role === 'staff') {
+                // Nếu là Staff: Ẩn Doanh thu & Cài đặt
+                if(navRev) navRev.style.display = 'none';
+                if(navSet) navSet.style.display = 'none';
+                
+                // Nếu đang đứng ở 2 tab đó mà bị mất quyền (do F5) -> Đá về tab Vận hành
+                const activeMenu = document.querySelector('nav.bottom-nav .nav-item.active')?.dataset.menu;
+                if (activeMenu === 'revenue' || activeMenu === 'settings') {
+                    switchMainMenu('operation');
+                }
+            } else {
+                // Nếu là Manager: Hiện đầy đủ
+                if(navRev) navRev.style.display = 'flex';
+                if(navSet) navSet.style.display = 'flex';
             }
         }
     </script>
