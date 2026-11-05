@@ -16,22 +16,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-            /* ========== TOÀN BỘ STYLE ĐỒNG BỘ APP USER ========== */
+                    /* ========== TOÀN BỘ STYLE ========== */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
-            --navy: #1B2B7A;
-            --navy-deep: #131F5C;
-            --navy-pale: #F0F3FF;
-            --white: #FFFFFF;
-            --surface: #F8FAFC;
-            --border: #E2E8F0;
-            --text: #0F172A;
-            --muted: #64748B;
-            --success: #10B981;
-            --danger: #EF4444;
-            --radius-sm: 12px;
-            --radius-md: 16px;
-            --radius-lg: 24px;
+            --navy: #1B2B7A; --navy-deep: #131F5C; --navy-pale: #F0F3FF;
+            --white: #FFFFFF; --surface: #F8FAFC; --border: #E2E8F0;
+            --text: #0F172A; --muted: #64748B; --success: #10B981; --danger: #EF4444;
+            --radius-sm: 12px; --radius-md: 16px; --radius-lg: 24px;
             --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
             --shadow-md: 0 8px 24px rgba(27, 43, 122, 0.08);
             --shadow-lg: 0 20px 48px rgba(27, 43, 122, 0.16);
@@ -39,21 +30,21 @@
         html, body { height: 100%; margin: 0; padding: 0; }
         body {
             font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #E2E8F0;
-            display: flex; justify-content: center;
-            min-height: 100vh; color: var(--text);
-            -webkit-tap-highlight-color: transparent;
+            background: #E2E8F0; display: flex; justify-content: center;
+            min-height: 100vh; color: var(--text); -webkit-tap-highlight-color: transparent;
         }
+        
+        /* 🚨 FIX: Cho phép app full chiều ngang trên Tablet */
         .app {
-            width: 100%; max-width: 500px; min-height: 100vh;
-            background: var(--surface); position: relative;
+            width: 100%; max-width: 1200px; /* Full ngang */
+            min-height: 100vh; background: var(--surface); position: relative;
             overflow-x: hidden; box-shadow: var(--shadow-lg); margin: 0 auto;
             padding-bottom: 100px;
         }
 
         /* Header & Hero Card */
         .dash-header {
-            background: var(--navy); padding: 28px 24px 30px; /* Sửa padding để không bị đè */
+            background: var(--navy); padding: 28px 24px 30px;
             position: relative; border-radius: 0 0 24px 24px; overflow: visible; z-index: 10;
         }
         .dash-topbar { display: flex; justify-content: space-between; align-items: flex-start; position: relative; z-index: 1; }
@@ -61,20 +52,14 @@
         .dash-greeting h2 { font-size: 22px; font-weight: 800; color: var(--white); letter-spacing: -0.3px; line-height: 1.2; }
         .dash-greeting .tier-badge { font-size: 11px; background: rgba(255,255,255,0.2); color: #fff; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-top: 6px; font-weight: 600; }
         
-        /* Nút đăng xuất fix tròn */
         .avatar-btn {
-            width: 40px !important; height: 40px !important;
-            min-width: 40px !important; min-height: 40px !important;
-            flex-shrink: 0; aspect-ratio: 1/1;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(4px);
+            width: 40px !important; height: 40px !important; flex-shrink: 0; aspect-ratio: 1/1;
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 50% !important; display: flex; align-items: center; justify-content: center;
-            color: #fff; font-size: 15px; cursor: pointer; transition: all 0.2s;
-            padding: 0;
+            color: #fff; font-size: 15px; cursor: pointer; transition: all 0.2s; padding: 0;
         }
         .avatar-btn:active { transform: scale(0.95); }
 
-        /* Hero card dịch xuống 1 chút để không bị đè */
         .hero-card {
             background: var(--white); border-radius: var(--radius-lg);
             margin: 16px 20px 20px; padding: 20px; box-shadow: var(--shadow-md);
@@ -87,7 +72,7 @@
         .stat-box h3 { font-size: 24px; font-weight: 800; color: var(--navy); line-height: 1; }
         .stat-box.wallet h3 { color: var(--success); }
 
-        /* Bottom Nav - Floating Pill + Nút Scan ở giữa */
+        /* Bottom Nav - Floating Pill */
         nav.bottom-nav {
             position: fixed !important; bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
             left: 50% !important; transform: translateX(-50%) !important;
@@ -108,15 +93,12 @@
         nav.bottom-nav .nav-item.active { color: var(--navy) !important; }
         nav.bottom-nav .nav-item.active i { transform: translateY(-2px) scale(1.1) !important; }
 
-        /* Nút Scan nổi bật ở giữa */
         nav.bottom-nav .nav-item.nav-scan { flex: 0 0 auto !important; width: 64px !important; }
         nav.bottom-nav .nav-item.nav-scan i {
-            width: 56px !important; height: 56px !important;
-            background: var(--navy) !important; color: #fff !important;
+            width: 56px !important; height: 56px !important; background: var(--navy) !important; color: #fff !important;
             border-radius: 50% !important; border: 4px solid #ffffff !important;
             display: flex !important; align-items: center !important; justify-content: center !important;
-            font-size: 24px !important; margin-top: -24px !important;
-            box-shadow: 0 6px 16px rgba(27, 43, 122, 0.3) !important;
+            font-size: 24px !important; margin-top: -24px !important; box-shadow: 0 6px 16px rgba(27, 43, 122, 0.3) !important;
             transform: translateY(-2px) !important;
         }
         nav.bottom-nav .nav-item.nav-scan:hover i { transform: translateY(-4px) !important; background: var(--navy-deep) !important; }
@@ -133,6 +115,31 @@
         .task-meta { font-size: 12.5px; color: var(--muted); margin-top: 6px; display: flex; flex-direction: column; gap: 4px; }
         .task-meta i { width: 14px; text-align: center; }
 
+        /* 🚨 FIX: Căn chỉnh 2 nút ngang hàng, cách đều, bỏ icon */
+        .btn-actions {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+            margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--border);
+        }
+        .btn-actions.single { grid-template-columns: 1fr; }
+        .btn-sm {
+            padding: 10px 14px; border-radius: var(--radius-sm); font-family: inherit;
+            font-size: 13px; font-weight: 700; cursor: pointer; border: none;
+            display: flex; align-items: center; justify-content: center; gap: 6px; transition: 0.15s;
+            width: 100%;
+        }
+        .btn-sm:active { transform: scale(0.97); }
+        .btn-sm.primary { background: var(--navy); color: #fff; }
+        .btn-sm.outline { background: #fff; border: 1.5px solid var(--border); color: var(--text); }
+        .btn-sm.danger { background: #FEF2F2; border: 1px solid #FECACA; color: #991B1B; }
+
+        /* Tabs */
+        .task-tabs { display: flex; background: #F1F5F9; border-radius: 30px; padding: 4px; gap: 4px; margin-bottom: 16px; }
+        .task-tab {
+            flex: 1; padding: 10px; border-radius: 26px; font-weight: 700; font-size: 13px;
+            cursor: pointer; background: transparent; color: var(--muted); border: none; transition: all 0.2s;
+        }
+        .task-tab.active { background: var(--navy); color: #fff; box-shadow: 0 2px 8px rgba(27, 43, 122, 0.25); }
+
         /* Form & Inputs */
         .input-field {
             width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
@@ -141,27 +148,6 @@
         }
         .input-field:focus { border-color: var(--navy); box-shadow: 0 0 0 4px var(--navy-pale); }
         .input-field:disabled { background: #F1F5F9; color: #94A3B8; cursor: not-allowed; }
-
-        /* Buttons */
-        .btn-sm {
-            padding: 10px 14px; border-radius: var(--radius-sm); font-family: inherit;
-            font-size: 13px; font-weight: 700; cursor: pointer; border: none;
-            display: flex; align-items: center; justify-content: center; gap: 6px; transition: 0.15s;
-        }
-        .btn-sm:active { transform: scale(0.97); }
-        .btn-sm.primary { background: var(--navy); color: #fff; }
-        .btn-sm.outline { background: #fff; border: 1.5px solid var(--border); color: var(--text); }
-        .btn-sm.danger { background: #FEF2F2; border: 1px solid #FECACA; color: #991B1B; }
-
-        /* Tabs */
-        .task-tabs {
-            display: flex; background: #F1F5F9; border-radius: 30px; padding: 4px; gap: 4px; margin-bottom: 16px;
-        }
-        .task-tab {
-            flex: 1; padding: 10px; border-radius: 26px; font-weight: 700; font-size: 13px;
-            cursor: pointer; background: transparent; color: var(--muted); border: none; transition: all 0.2s;
-        }
-        .task-tab.active { background: var(--navy); color: #fff; box-shadow: 0 2px 8px rgba(27, 43, 122, 0.25); }
 
         /* Modal */
         .modal-overlay {
@@ -195,12 +181,6 @@
         .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
         .toast.success { background-color: rgba(27,43,122,0.95); }
         .toast.error { background-color: rgba(239,68,68,0.95); }
-
-        #btnInstall { display: none; background-color: #28a745; position: fixed; bottom: 90px; right: 20px; z-index: 9999; padding: 10px 15px; border: none; border-radius: 30px; color: white; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        
-        /* Empty State */
-        .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
-        .empty-state i { font-size: 36px; color: #CBD5E1; margin-bottom: 12px; }
 
         /* ===== SETTINGS ACCORDION ===== */
         .settings-section {
@@ -961,7 +941,16 @@
         }
 
                 // Hàm chuyển Menu chính (Bottom Nav)
-                function switchMainMenu(menu) {
+            function switchMainMenu(menu) {
+            // 🚨 CHẶN QUÁN CẤP 1 VÀO DOANH THU
+            if (menu === 'revenue') {
+                const tierText = document.getElementById('headerCafeTier').textContent;
+                if (tierText.includes('cấp 1')) {
+                    showToast('Chức năng Doanh thu chỉ dành cho Quán cấp 2', false);
+                    return; 
+                }
+            }
+
             document.querySelectorAll('nav.bottom-nav .nav-item').forEach(el => {
                 el.classList.toggle('active', el.dataset.menu === menu);
             });
@@ -981,7 +970,6 @@
                 loadDashboard();
             } else if (menu === 'settings') {
                 loadStaffList();
-                // Gọi loadDashboard ngầm để fill data vào các ô input (Tên, địa chỉ, ví...)
                 loadDashboard();
             }
         }
@@ -1022,7 +1010,7 @@
                     
                     syncMgrImagesAndWallet(data.cafe);
 
-                    const c = data.cafe;
+                                        const c = data.cafe;
                     if (c) {
                         document.getElementById('setCafeName').value = c.name || '';
                         document.getElementById('setCafeAddress').value = c.address || '';
@@ -1030,24 +1018,23 @@
                             document.getElementById('setCafeLat').value = c.location.lat || '';
                             document.getElementById('setCafeLng').value = c.location.lng || '';
                         }
-                        document.getElementById('setCafeTotalTables').value = c.total_tables || '';
-                        document.getElementById('setCafeMaxSeats').value = c.max_seats || ''; // 🚨 THÊM MAX SEATS
+                        // 🚨 FIX LỖI MẤT DỮ LIỆU BÀN TỐI ĐA & GHẾ TỐI ĐA
+                        document.getElementById('setCafeTotalTables').value = c.total_tables || 0;
+                        document.getElementById('setCafeMaxSeats').value = c.max_seats || 0;
                         
                         document.getElementById('setCafeRating').innerHTML = `${c.avg_rating || 0} <i class="fa-solid fa-star" style="color:#FCD34D; font-size:12px;"></i>`;
                         document.getElementById('setCafeReviewCount').textContent = c.total_reviews || 0;
                         
-                        // Update Header
                         document.getElementById('headerCafeName').textContent = c.name;
                         const tierBadge = document.getElementById('headerCafeTier');
                         if (c.tier === 1) {
-                            tierBadge.textContent = 'Quán cấp 1'; // 🚨 Đổi text
+                            tierBadge.textContent = 'Quán cấp 1';
                             tierBadge.style.background = 'rgba(16, 185, 129, 0.3)';
                         } else {
-                            tierBadge.textContent = 'Quán cấp 2'; // 🚨 Đổi text
+                            tierBadge.textContent = 'Quán cấp 2';
                             tierBadge.style.background = 'rgba(255, 255, 255, 0.2)';
                         }
                     }
-
                     renderActiveCheckins(data.active_checkins);
                     renderPendingConfirms(data.pending_confirms || []);
                     renderPendingBookings(data.pending_bookings);
@@ -1192,16 +1179,16 @@
                             <div style="font-size: 11px; font-weight: 600; color: var(--muted);">${Number(c.revenue_amount).toLocaleString('vi-VN')}đ</div>
                         </div>
                     </div>
-                    <div class="btn-actions">
+                        <div class="btn-actions">
                         <button onclick="submitManagerAction('confirm', '${c.checkin_id}', this)" class="btn-sm primary">
-                            <i class="fa-solid fa-check"></i> Xác nhận
+                            Xác nhận
                         </button>
                         ${!isExpired ? `
                         <button onclick="submitManagerAction('undo', '${c.checkin_id}', this)" class="btn-sm outline">
-                            <i class="fa-solid fa-rotate-left"></i> Hoàn tác
+                            Hoàn tác
                         </button>
                         ` : `
-                        <button disabled class="btn-sm disabled">
+                        <button disabled class="btn-sm outline" style="opacity: 0.5;">
                             Quá hạn
                         </button>
                         `}
@@ -1221,7 +1208,7 @@
             container.innerHTML = bookings.map(b => {
                 const isConfirmed = b.status === 'confirmed';
                 
-                return `
+                                return `
                 <div class="task-item">
                     <div class="task-header">
                         <div>
@@ -1244,16 +1231,16 @@
                         `}
                     </div>
                     
-                    <div class="btn-actions">
+                    <div class="btn-actions ${isConfirmed ? 'single' : ''}">
                         ${!isConfirmed ? `
                             <button onclick="submitBookingAction('confirm', '${b.booking_id}', this)" class="btn-sm primary">
-                                <i class="fa-solid fa-check"></i> Xác nhận
+                                Xác nhận
                             </button>
                             <button onclick="submitBookingAction('cancel', '${b.booking_id}', this)" class="btn-sm danger">
-                                <i class="fa-solid fa-xmark"></i> Hủy
+                                Hủy
                             </button>
                         ` : `
-                            <div style="width: 100%; text-align: center; font-size: 12.5px; color: var(--muted); padding: 10px; background: #F8FAFC; border-radius: var(--radius-sm);">
+                            <div style="text-align: center; font-size: 12.5px; color: var(--muted); padding: 10px; background: #F8FAFC; border-radius: var(--radius-sm); width: 100%;">
                                 Quán không thể hủy sau khi đã xác nhận.
                             </div>
                         `}
