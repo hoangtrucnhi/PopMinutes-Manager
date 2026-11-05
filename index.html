@@ -188,7 +188,7 @@
         }
 
         .toast {
-            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+            position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%) translateY(20px);
             padding: 12px 18px; border-radius: 18px; color: white; font-weight: 600; font-size: 14px;
             display: flex; align-items: flex-start; gap: 8px; opacity: 0; pointer-events: none;
             transition: opacity 0.3s ease, transform 0.3s ease; z-index: 9999; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
@@ -1154,8 +1154,8 @@
                             <div style="font-size: 20px; font-weight: 800; color: ${isConfirmed ? 'var(--success)' : '#F59E0B'};">
                                 ${c.elapsed_hours.toFixed(1)}h
                             </div>
-                            <div class="status-text ${isConfirmed ? 'status-active' : 'status-wait'}">
-                                ${isConfirmed ? 'Đang ngồi' : 'Chờ quét'}
+                            <div class="status-text ${isConfirmed ? 'status-active' : 'status-wait'}" style="white-space: nowrap;">
+                                ${isConfirmed ? 'Đang ngồi' : 'Chưa xác nhận'}
                             </div>
                         </div>
                     </div>
@@ -1232,19 +1232,20 @@
                             <div class="task-meta">
                                 <span><i class="fa-regular fa-clock"></i> Hẹn: ${fmtDateTime(b.start_time_iso)}</span>
                                 ${b.note ? `<span><i class="fa-regular fa-note-sticky"></i> ${b.note}</span>` : ''}
-                                <span><i class="fa-solid fa-users"></i> Tổng: <b>${b.guest_count || 1} ghế</b></span>
-                                ${(b.guest_count > 1) ? `<span style="color: #0284C7; font-weight: 700;"><i class="fa-solid fa-mug-hot"></i> Khách đi cùng: Ưu đãi nước</span>` : ''}
+                                <span><i class="fa-solid fa-users"></i> Tổng: <b>${b.guest_count || 1} ghế</b></span>             
+                                ${(b.guest_count > 1) ? `<span style="color: #0284C7; font-weight: 700; white-space: nowrap;"><i class="fa-solid fa-mug-hot"></i> Khách đi cùng: Ưu đãi nước</span>` : ''}
                             </div>
                         </div>
                         ${isConfirmed ? `
-                            <div style="color: var(--success); font-size: 11px; font-weight: 800; text-transform: uppercase; text-align: right;">
+                            <div style="color: var(--success); font-size: 11px; font-weight: 800; text-transform: uppercase; text-align: right; white-space: nowrap;">
                                 <i class="fa-solid fa-check-circle"></i> Đã xác nhận
                             </div>
                         ` : `
-                            <div style="color: #F59E0B; font-size: 11px; font-weight: 800; text-transform: uppercase; text-align: right;">
+                            <div style="color: #F59E0B; font-size: 11px; font-weight: 800; text-transform: uppercase; text-align: right; white-space: nowrap;">
                                 <i class="fa-solid fa-hourglass-half"></i> Chờ duyệt
                             </div>
                         `}
+
                     </div>
                     
                     <div class="btn-actions ${isConfirmed ? 'single' : ''}">
