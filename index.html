@@ -351,19 +351,6 @@
                 </div>
                 <div id="list-active" style="width: 100%; display: flex; flex-direction: column; gap: 12px;"></div>
                 <div id="list-confirm" style="width: 100%; display: none; flex-direction: column; gap: 12px;"></div>
-
-                <!-- 🚨 KHỐI UPLOAD ẢNH -->
-                <div style="margin-top: 32px; border-top: 1px dashed var(--border); padding-top: 20px;">
-                    <h3 style="font-size: 15px; font-weight: 800; color: var(--navy); margin-bottom: 12px;"><i class="fa-solid fa-camera"></i> Hình ảnh quán (Tối đa 6)</h3>
-                    <div id="mgrImagesList" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px;"></div>
-                    <input type="file" id="mgrImageInput" accept="image/*" multiple style="display: none;" onchange="handleMgrImageSelect(event)">
-                    <button onclick="document.getElementById('mgrImageInput').click()" class="btn-sm outline" style="width: 100%; padding: 10px; margin-bottom: 8px;">
-                        <i class="fa-solid fa-plus"></i> Thêm ảnh
-                    </button>
-                    <button onclick="saveMgrImages()" class="btn-sm primary" style="width: 100%; padding: 12px; font-size: 14px;">
-                        <i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi
-                    </button>
-                </div>
             </div>
 
             <!-- ================= VIEW: DOANH THU (REVENUE) ================= -->
@@ -379,7 +366,94 @@
                             <option value="paid">Đã thanh toán</option>
                         </select>
                     </div>
+                                <!-- ================= VIEW: CÀI ĐẶT (SETTINGS) ================= -->
+            <div id="view-settings" class="pa-view" style="display: none;">
+                
+                <!-- Thông tin quán -->
+                <div class="task-item" style="margin-bottom: 16px;">
+                    <h3 style="font-size: 15px; font-weight: 800; color: var(--navy); margin-bottom: 12px;"><i class="fa-solid fa-store"></i> Thông tin quán</h3>
                     
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px;">Tên quán</label>
+                    <input type="text" id="setCafeName" class="input-field" style="margin-bottom: 12px;">
+                    
+                    <label style="display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px;">Địa chỉ</label>
+                    <input type="text" id="setCafeAddress" class="input-field" style="margin-bottom: 12px;">
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                        <div>
+                            <label style="display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px;">Vĩ độ (Lat)</label>
+                            <input type="number" id="setCafeLat" class="input-field" step="any" style="margin-bottom: 0;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px;">Kinh độ (Lng)</label>
+                            <input type="number" id="setCafeLng" class="input-field" step="any" style="margin-bottom: 0;">
+                        </div>
+                    </div>
+                    <button onclick="getCurrentGps()" class="btn-sm outline" style="width: 100%; margin-bottom: 12px; padding: 8px;">
+                        <i class="fa-solid fa-location-crosshairs"></i> Lấy GPS hiện tại
+                    </button>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                        <div>
+                            <label style="display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px;">Số ghế tối đa</label>
+                            <input type="number" id="setCafeMaxSeats" class="input-field" style="margin-bottom: 0;" min="1">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px;">Tier (1=Free, 2=Paid)</label>
+                            <input type="number" id="setCafeTier" class="input-field" style="margin-bottom: 0;" min="1" max="2">
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                        <div style="flex: 1; background: #F8FAFC; padding: 8px; border-radius: 8px; text-align: center; border: 1px solid var(--border);">
+                            <div style="font-size: 11px; font-weight: 700; color: var(--muted);">Đánh giá</div>
+                            <div style="font-size: 14px; font-weight: 800; color: var(--navy);" id="setCafeRating">0 <i class="fa-solid fa-star" style="color:#FCD34D; font-size:12px;"></i></div>
+                        </div>
+                        <div style="flex: 1; background: #F8FAFC; padding: 8px; border-radius: 8px; text-align: center; border: 1px solid var(--border);">
+                            <div style="font-size: 11px; font-weight: 700; color: var(--muted);">Lượt review</div>
+                            <div style="font-size: 14px; font-weight: 800; color: var(--navy);" id="setCafeReviewCount">0</div>
+                        </div>
+                    </div>
+
+                    <button onclick="saveCafeSettings()" class="btn-sm primary" style="width: 100%; padding: 12px; font-size: 14px; margin-top: 8px;">
+                        <i class="fa-solid fa-floppy-disk"></i> Lưu thông tin quán
+                    </button>
+                </div>
+
+                <!-- Hình ảnh quán -->
+                <div class="task-item" style="margin-bottom: 16px;">
+                    <h3 style="font-size: 15px; font-weight: 800; color: var(--navy); margin-bottom: 12px;"><i class="fa-solid fa-camera"></i> Hình ảnh quán (Tối đa 6)</h3>
+                    <div id="mgrImagesList" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px;"></div>
+                    <input type="file" id="mgrImageInput" accept="image/*" multiple style="display: none;" onchange="handleMgrImageSelect(event)">
+                    <button onclick="document.getElementById('mgrImageInput').click()" class="btn-sm outline" style="width: 100%; padding: 10px; margin-bottom: 8px;">
+                        <i class="fa-solid fa-plus"></i> Thêm ảnh
+                    </button>
+                    <button onclick="saveMgrImages()" class="btn-sm primary" style="width: 100%; padding: 12px; font-size: 14px;">
+                        <i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi ảnh
+                    </button>
+                </div>
+
+                <!-- Quản lý nhân viên -->
+                <div class="task-item" id="staffManagementBox" style="margin-bottom: 16px;">
+                    <h3 style="font-size: 15px; font-weight: 800; color: var(--navy); margin-bottom: 12px;"><i class="fa-solid fa-users"></i> Nhân viên quán</h3>
+                    <div id="staffList" style="margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;"></div>
+                    
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                        <input type="text" id="newStaffName" class="input-field" placeholder="Tên NV" style="margin-bottom: 0; flex: 1;">
+                        <input type="email" id="newStaffEmail" class="input-field" placeholder="Email NV" style="margin-bottom: 0; flex: 1.5;">
+                    </div>
+                    <button onclick="addStaff()" class="btn-sm outline" style="width: 100%; padding: 10px;">
+                        <i class="fa-solid fa-plus"></i> Thêm nhân viên
+                    </button>
+                </div>
+
+                <!-- Ví & Thông tin thêm -->
+                <div class="task-item" style="margin-bottom: 16px;">
+                    <h3 style="font-size: 15px; font-weight: 800; color: var(--navy); margin-bottom: 12px;"><i class="fa-solid fa-wallet"></i> Ví quán</h3>
+                    <div style="font-size: 24px; font-weight: 800; color: var(--success); text-align: center; margin-bottom: 8px;" id="setCafeWallet">0đ</div>
+                    <div style="font-size: 12px; color: var(--muted); text-align: center;">Dùng để nhận khách Tier 1 (Trừ 5.000đ/lượt)</div>
+                </div>
+            </div>
                     <!-- 3 Thẻ Thống kê -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                         <div class="task-item" style="padding: 12px; text-align: center; background: var(--navy-pale); border: 1px solid var(--navy-light);">
@@ -402,15 +476,18 @@
         </div>
     </div>
     <!-- BOTTOM NAVIGATION (Menu chính) -->
-    <nav class="bottom-nav">
-        <button class="nav-item" data-menu="booking" onclick="switchMainMenu('booking')">
+    <nav class="bottom-nav" id="mainNav">
+        <button class="nav-item" data-menu="booking" onclick="switchMainMenu('booking')" id="nav-booking">
             <i class="fa-solid fa-calendar-check"></i><span>Đặt chỗ</span>
         </button>
-        <button class="nav-item active" data-menu="operation" onclick="switchMainMenu('operation')">
+        <button class="nav-item active" data-menu="operation" onclick="switchMainMenu('operation')" id="nav-operation">
             <i class="fa-solid fa-store"></i><span>Vận hành</span>
         </button>
-        <button class="nav-item" data-menu="revenue" onclick="switchMainMenu('revenue')">
+        <button class="nav-item" data-menu="revenue" onclick="switchMainMenu('revenue')" id="nav-revenue">
             <i class="fa-solid fa-file-invoice-dollar"></i><span>Doanh thu</span>
+        </button>
+        <button class="nav-item" data-menu="settings" onclick="switchMainMenu('settings')" id="nav-settings">
+            <i class="fa-solid fa-gear"></i><span>Cài đặt</span>
         </button>
     </nav>
     <!-- Nút Quét QR -->
@@ -710,7 +787,7 @@
             }, 3000);
         }
 
-        async function handleLogin() {
+                async function handleLogin() {
             const email = document.getElementById('loginEmail').value.trim();
             if (!email) return showToast('Vui lòng nhập email', false);
 
@@ -733,20 +810,31 @@
                     managerId = data.manager.manager_id;
                     cafeId = data.cafe.cafe_id;
                     cafeName = data.cafe.name;
+                    const role = data.manager.role || 'manager';
 
                     localStorage.setItem('pm_manager_token', managerToken);
                     localStorage.setItem('pm_manager_id', managerId);
                     localStorage.setItem('pm_cafe_id', cafeId);
                     localStorage.setItem('pm_cafe_name', cafeName);
+                    localStorage.setItem('pm_role', role);
 
                     document.getElementById('login-screen').style.display = 'none';
                     document.getElementById('dashboard-screen').style.display = 'block';
                     document.getElementById('fabScan').style.display = 'flex';
                     document.getElementById('headerCafeName').textContent = cafeName;
                     
+                    // PHÂN QUYỀN: Nếu là Staff thì ẩn Doanh thu & Cài đặt
+                    if (role === 'staff') {
+                        document.getElementById('nav-revenue').style.display = 'none';
+                        document.getElementById('nav-settings').style.display = 'none';
+                    } else {
+                        document.getElementById('nav-revenue').style.display = 'flex';
+                        document.getElementById('nav-settings').style.display = 'flex';
+                    }
+
                     loadDashboard();
                     startDashboardPolling();
-                    loadManagerTelegramStatus(); // Load trạng thái Telegram
+                    loadManagerTelegramStatus();
                 } else {
                     errDiv.textContent = data.message || 'Đăng nhập thất bại';
                     errDiv.style.display = 'block';
@@ -901,21 +989,20 @@
 
                 // Hàm chuyển Menu chính (Bottom Nav)
         function switchMainMenu(menu) {
-            // 1. Cập nhật class active cho Bottom Nav
             document.querySelectorAll('nav.bottom-nav .nav-item').forEach(el => {
                 el.classList.toggle('active', el.dataset.menu === menu);
             });
 
-            // 2. Ẩn tất cả các view, chỉ hiện view được chọn
             document.querySelectorAll('.pa-view').forEach(el => el.style.display = 'none');
             const targetView = document.getElementById('view-' + menu);
             if (targetView) targetView.style.display = 'block';
 
-            // 3. Load data tương ứng nếu cần
             if (menu === 'revenue') {
                 loadHistoryRevenue();
             } else if (menu === 'booking') {
-                loadDashboard(); // Cập nhật lại danh sách chờ tới
+                loadDashboard();
+            } else if (menu === 'settings') {
+                loadStaffList();
             }
         }
 
@@ -931,7 +1018,7 @@
             document.getElementById('list-confirm').style.display = (tab === 'confirm') ? 'flex' : 'none';
         }
 
-                  async function loadDashboard() {
+        async function loadDashboard() {
             if (!managerId || !managerToken) return;
             try {
                 const res = await mgrFetch(`${CLOUD_FUNCTION_URL}?action=cafeManagerGetStats&managerId=${managerId}&managerToken=${managerToken}`);
@@ -941,8 +1028,24 @@
                     document.getElementById('statActive').textContent = data.active_count;
                     document.getElementById('statPending').textContent = data.pending_count;
                     
-                    // 🚨 CẬP NHẬT VÍ VÀ ẢNH
+                    // Cập nhật Wallet & Images
                     syncMgrImagesAndWallet(data.cafe);
+
+                    // Cập nhật thông tin Settings
+                    const c = data.cafe;
+                    if (c) {
+                        document.getElementById('setCafeName').value = c.name || '';
+                        document.getElementById('setCafeAddress').value = c.address || '';
+                        if (c.location) {
+                            document.getElementById('setCafeLat').value = c.location.lat || '';
+                            document.getElementById('setCafeLng').value = c.location.lng || '';
+                        }
+                        document.getElementById('setCafeMaxSeats').value = c.max_seats || '';
+                        document.getElementById('setCafeTier').value = c.tier || 2;
+                        document.getElementById('setCafeRating').innerHTML = `${c.avg_rating || 0} <i class="fa-solid fa-star" style="color:#FCD34D; font-size:12px;"></i>`;
+                        document.getElementById('setCafeReviewCount').textContent = c.total_reviews || 0;
+                        document.getElementById('setCafeWallet').textContent = Number(c.wallet_balance || 0).toLocaleString('vi-VN') + 'đ';
+                    }
 
                     renderActiveCheckins(data.active_checkins);
                     renderPendingConfirms(data.pending_confirms || []);
@@ -1507,6 +1610,136 @@
             const actual = parseInt(input);
             if (isNaN(actual) || actual < 1 || actual > maxCount) return showToast('Số người không hợp lệ', false);
             await submitManagerConfirmGuest(checkinId, true, actual, btn);
+        }
+                // ============================================================
+        //  XỬ LÝ CÀI ĐẶT (SETTINGS)
+        // ============================================================
+        function getCurrentGps() {
+            showToast('Đang lấy GPS...', true);
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    document.getElementById('setCafeLat').value = pos.coords.latitude.toFixed(6);
+                    document.getElementById('setCafeLng').value = pos.coords.longitude.toFixed(6);
+                    showToast('Đã lấy GPS thành công', true);
+                },
+                (err) => showToast('Lỗi GPS: ' + err.message, false),
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        async function saveCafeSettings() {
+            const btn = event.target;
+            const orig = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang lưu...';
+
+            try {
+                const res = await mgrFetch(CLOUD_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        action: 'cafeManagerUpdateSettings',
+                        managerId, managerToken, cafeId,
+                        name: document.getElementById('setCafeName').value.trim(),
+                        address: document.getElementById('setCafeAddress').value.trim(),
+                        lat: document.getElementById('setCafeLat').value,
+                        lng: document.getElementById('setCafeLng').value,
+                        maxSeats: document.getElementById('setCafeMaxSeats').value,
+                        tier: document.getElementById('setCafeTier').value
+                    }).toString()
+                });
+                const data = await res.json();
+                if (data.status === 200) {
+                    showToast('Đã lưu thông tin quán', true);
+                    loadDashboard(); // Refresh header name if changed
+                } else {
+                    showToast(getMgrErrorMsg(data.code, data.params, data.message), false);
+                }
+            } catch (e) {
+                if (e.message !== 'SESSION_EXPIRED') showToast('Lỗi kết nối', false);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = orig;
+            }
+        }
+
+        async function loadStaffList() {
+            const role = localStorage.getItem('pm_role');
+            if (role === 'staff') return; // Staff không thấy box này
+
+            const container = document.getElementById('staffList');
+            container.innerHTML = '<div style="font-size: 12px; color: var(--muted); text-align: center;">Đang tải...</div>';
+
+            try {
+                const res = await mgrFetch(`${CLOUD_FUNCTION_URL}?action=cafeManagerListStaff&managerId=${managerId}&managerToken=${managerToken}&cafeId=${cafeId}`);
+                const data = await res.json();
+                if (data.status === 200 && data.staffs) {
+                    if (data.staffs.length === 0) {
+                        container.innerHTML = '<div style="font-size: 12px; color: var(--muted); text-align: center;">Chưa có nhân viên nào</div>';
+                    } else {
+                        container.innerHTML = data.staffs.map(s => `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #F8FAFC; border-radius: 8px; border: 1px solid var(--border);">
+                                <div>
+                                    <div style="font-size: 13px; font-weight: 700;">${s.name}</div>
+                                    <div style="font-size: 11px; color: var(--muted);">${s.email}</div>
+                                </div>
+                                <button onclick="removeStaff('${s.manager_id}')" style="background: #FEF2F2; color: #EF4444; border: none; border-radius: 6px; padding: 6px; cursor: pointer;"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch (e) {
+                container.innerHTML = '<div style="font-size: 12px; color: var(--danger); text-align: center;">Lỗi tải danh sách</div>';
+            }
+        }
+
+        async function addStaff() {
+            const email = document.getElementById('newStaffEmail').value.trim();
+            const name = document.getElementById('newStaffName').value.trim();
+            if (!email) return showToast('Vui lòng nhập email nhân viên', false);
+
+            try {
+                const res = await mgrFetch(CLOUD_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        action: 'cafeManagerAddStaff',
+                        managerId, managerToken, cafeId, staffEmail: email, staffName: name
+                    }).toString()
+                });
+                const data = await res.json();
+                if (data.status === 200) {
+                    showToast('Đã thêm nhân viên', true);
+                    document.getElementById('newStaffEmail').value = '';
+                    document.getElementById('newStaffName').value = '';
+                    loadStaffList();
+                } else {
+                    showToast(data.message, false);
+                }
+            } catch (e) {
+                if (e.message !== 'SESSION_EXPIRED') showToast('Lỗi kết nối', false);
+            }
+        }
+
+        async function removeStaff(staffId) {
+            if (!confirm('Bạn có chắc muốn xóa nhân viên này?')) return;
+            try {
+                const res = await mgrFetch(CLOUD_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        action: 'cafeManagerRemoveStaff',
+                        managerId, managerToken, staffId
+                    }).toString()
+                });
+                const data = await res.json();
+                if (data.status === 200) {
+                    showToast('Đã xóa nhân viên', true);
+                    loadStaffList();
+                }
+            } catch (e) {
+                if (e.message !== 'SESSION_EXPIRED') showToast('Lỗi kết nối', false);
+            }
         }
     </script>
 </body>
