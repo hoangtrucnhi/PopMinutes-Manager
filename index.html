@@ -16,7 +16,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* ========== CSS COPY Y NGUYÊN TỪ APP SALES ========== */
+            /* ========== TOÀN BỘ STYLE ĐỒNG BỘ APP USER ========== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
             --navy: #1B2B7A;
             --navy-deep: #131F5C;
@@ -31,141 +32,159 @@
             --radius-sm: 12px;
             --radius-md: 16px;
             --radius-lg: 24px;
+            --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
+            --shadow-md: 0 8px 24px rgba(27, 43, 122, 0.08);
+            --shadow-lg: 0 20px 48px rgba(27, 43, 122, 0.16);
         }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
+        html, body { height: 100%; margin: 0; padding: 0; }
         body {
             font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--surface);
-            color: var(--text);
+            background: #E2E8F0;
+            display: flex; justify-content: center;
+            min-height: 100vh; color: var(--text);
             -webkit-tap-highlight-color: transparent;
         }
+        .app {
+            width: 100%; max-width: 500px; min-height: 100vh;
+            background: var(--surface); position: relative;
+            overflow-x: hidden; box-shadow: var(--shadow-lg); margin: 0 auto;
+            padding-bottom: 100px; /* Đẩy nội dung lên tránh bị nav che */
+        }
 
-        /* Header */
+        /* Header & Hero Card */
         .dash-header {
-            background: var(--navy);
-            padding: 24px;
-            border-radius: 0 0 24px 24px;
-            box-shadow: 0 4px 16px rgba(19, 31, 92, 0.15);
-            color: var(--white);
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            background: var(--navy); padding: 28px 24px 40px;
+            position: relative; border-radius: 0 0 24px 24px; overflow: visible; z-index: 10;
         }
-        .dash-topbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .dash-greeting p { font-size: 12px; color: rgba(255,255,255,0.7); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
-        .dash-greeting h2 { font-size: 20px; font-weight: 800; }
+        .dash-topbar { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; }
+        .dash-greeting p { font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 500; margin-bottom: 2px; }
+        .dash-greeting h2 { font-size: 22px; font-weight: 800; color: var(--white); letter-spacing: -0.3px; }
+        .dash-greeting .tier-badge { font-size: 12px; background: rgba(255,255,255,0.2); color: #fff; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-top: 6px; font-weight: 600; }
         
-        .logout-btn {
-            width: 40px; height: 40px;
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 50%;
-            color: #fff;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.2s;
+        .avatar-btn {
+            width: 44px; height: 44px; background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(4px);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 15px; cursor: pointer; transition: all 0.2s;
         }
-        .logout-btn:active { transform: scale(0.92); }
+        .avatar-btn:active { transform: scale(0.95); }
 
-        /* Stats */
-        .stats-row { display: flex; gap: 12px; }
-        .stat-box {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius-sm);
-            padding: 12px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+        .hero-card {
+            background: var(--white); border-radius: var(--radius-lg);
+            margin: -24px 20px 20px; padding: 20px; box-shadow: var(--shadow-md);
+            position: relative; z-index: 2; border: 1px solid rgba(226, 232, 240, 0.8);
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; text-align: center;
         }
-        .stat-box p { font-size: 12px; color: rgba(255,255,255,0.8); font-weight: 600; }
-        .stat-box h3 { font-size: 24px; font-weight: 800; margin-top: 4px; }
+        .stat-box { display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid var(--border); }
+        .stat-box:last-child { border-right: none; }
+        .stat-box p { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+        .stat-box h3 { font-size: 24px; font-weight: 800; color: var(--navy); line-height: 1; }
+        .stat-box.wallet h3 { color: var(--success); }
 
-        /* Tabs */
-        .task-tabs {
-            display: flex;
-            background: #F1F5F9;
-            border-radius: 30px;
-            padding: 4px;
-            gap: 4px;
-            margin: 20px 20px 16px;
-            width: calc(100% - 40px); /* 🚨 Thêm dòng này để full chiều ngang */
+        /* Bottom Nav - Floating Pill */
+        nav.bottom-nav {
+            position: fixed !important; bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+            left: 50% !important; transform: translateX(-50%) !important;
+            display: flex !important; align-items: center !important; justify-content: space-around !important;
+            padding: 6px 8px !important; width: auto !important; min-width: 280px !important;
+            background: rgba(255, 255, 255, 0.95) !important; backdrop-filter: blur(24px) saturate(180%) !important;
+            border-radius: 32px !important; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08), 0 12px 32px rgba(15, 23, 42, 0.12) !important;
+            z-index: 90 !important;
         }
-        .task-tab {
-            flex: 1;
-            padding: 10px 14px;
-            border-radius: 26px;
-            font-weight: 700;
-            font-size: 13.5px;
-            cursor: pointer;
-            background: transparent;
-            color: var(--muted);
-            border: none;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            white-space: nowrap;
-            font-family: inherit;
+        nav.bottom-nav .nav-item {
+            width: 56px !important; height: 48px !important; background: transparent !important;
+            border: none !important; display: flex !important; flex-direction: column !important;
+            align-items: center !important; justify-content: center !important; gap: 4px !important;
+            color: var(--muted) !important; font-size: 10px !important; font-weight: 700 !important;
+            cursor: pointer; transition: all 0.2s ease !important; border-radius: 20px !important;
         }
-        .task-tab.active {
-            background: var(--navy);
-            color: #fff;
-            box-shadow: 0 2px 8px rgba(27, 43, 122, 0.25);
-        }
+        nav.bottom-nav .nav-item i { font-size: 20px !important; margin-bottom: 0 !important; }
+        nav.bottom-nav .nav-item.active { color: var(--navy) !important; }
+        nav.bottom-nav .nav-item.active i { transform: translateY(-2px) scale(1.1) !important; }
 
-        /* Card / List Item */
-        .list-container { padding: 0 20px 100px; display: flex; flex-direction: column; gap: 12px; }
-        
+        /* Task Item (Card) */
         .task-item {
-            background: var(--white);
-            border-radius: var(--radius-md);
-            padding: 16px;
-            border: 1px solid var(--border);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            width: 100%;
-            box-sizing: border-box;
+            background: var(--white); border-radius: var(--radius-md); padding: 16px;
+            border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+            width: 100%; box-sizing: border-box; margin-bottom: 12px;
         }
         .task-header { display: flex; justify-content: space-between; align-items: flex-start; }
-        .task-title { font-weight: 700; font-size: 16px; color: var(--text); }
-        .task-meta { font-size: 12.5px; color: var(--muted); margin-top: 6px; display: flex; flex-direction: column; gap: 4px;}
+        .task-title { font-weight: 700; font-size: 15px; color: var(--text); }
+        .task-meta { font-size: 12.5px; color: var(--muted); margin-top: 6px; display: flex; flex-direction: column; gap: 4px; }
         .task-meta i { width: 14px; text-align: center; }
-        
-        .status-text { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
-        .status-active { color: var(--success); }
-        .status-wait { color: #F59E0B; }
+
+        /* Form & Inputs */
+        .input-field {
+            width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+            font-family: inherit; font-size: 14px; outline: none; transition: 0.2s; margin-bottom: 12px;
+            background: #fff; color: var(--text);
+        }
+        .input-field:focus { border-color: var(--navy); box-shadow: 0 0 0 4px var(--navy-pale); }
+        .input-field:disabled { background: #F1F5F9; color: #94A3B8; cursor: not-allowed; }
 
         /* Buttons */
-        .btn-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 14px;
-            padding-top: 14px;
-            border-top: 1px dashed var(--border);
-        }
         .btn-sm {
-            flex: 1;
-            padding: 10px;
-            border-radius: var(--radius-sm);
-            font-family: inherit;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            border: none;
-            display: flex; align-items: center; justify-content: center; gap: 6px;
-            transition: 0.15s;
+            padding: 10px 14px; border-radius: var(--radius-sm); font-family: inherit;
+            font-size: 13px; font-weight: 700; cursor: pointer; border: none;
+            display: flex; align-items: center; justify-content: center; gap: 6px; transition: 0.15s;
         }
         .btn-sm:active { transform: scale(0.97); }
         .btn-sm.primary { background: var(--navy); color: #fff; }
         .btn-sm.outline { background: #fff; border: 1.5px solid var(--border); color: var(--text); }
         .btn-sm.danger { background: #FEF2F2; border: 1px solid #FECACA; color: #991B1B; }
-        .btn-sm.disabled { background: #F1F5F9; color: #94A3B8; cursor: not-allowed; }
 
+        /* Tabs */
+        .task-tabs {
+            display: flex; background: #F1F5F9; border-radius: 30px; padding: 4px; gap: 4px; margin-bottom: 16px;
+        }
+        .task-tab {
+            flex: 1; padding: 10px; border-radius: 26px; font-weight: 700; font-size: 13px;
+            cursor: pointer; background: transparent; color: var(--muted); border: none; transition: all 0.2s;
+        }
+        .task-tab.active { background: var(--navy); color: #fff; box-shadow: 0 2px 8px rgba(27, 43, 122, 0.25); }
+
+        /* Modal (Dùng cho Quét QR) */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(8px); display: none; align-items: flex-end; justify-content: center; z-index: 100;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: var(--surface); width: 100%; max-width: 500px;
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: 24px;
+            padding-bottom: calc(24px + env(safe-area-inset-bottom)); animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+        }
+        .modal-header h3 { font-size: 18px; font-weight: 800; color: var(--navy); }
+        .modal-close {
+            width: 32px; height: 32px; background: #E2E8F0; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: none; cursor: pointer; color: var(--muted); font-size: 14px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+            padding: 12px 18px; border-radius: 18px; color: white; font-weight: 600; font-size: 14px;
+            display: flex; align-items: flex-start; gap: 8px; opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease; z-index: 9999; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            width: fit-content; max-width: calc(100vw - 32px); line-height: 1.4;
+            backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2);
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast.success { background-color: rgba(27,43,122,0.95); }
+        .toast.error { background-color: rgba(239,68,68,0.95); }
+
+        /* Nút cài đặt PWA */
+        #btnInstall {
+            display: none; background-color: #28a745; position: fixed; bottom: 90px; right: 20px; 
+            z-index: 9999; padding: 10px 15px; border: none; border-radius: 30px; 
+            color: white; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
         /* Empty State */
         .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
         .empty-state i { font-size: 36px; color: #CBD5E1; margin-bottom: 12px; }
@@ -183,25 +202,6 @@
             transition: transform 0.2s;
         }
         .fab-scan:active { transform: scale(0.92); }
-
-        /* Modal */
-        .modal-overlay {
-            position: fixed; inset: 0;
-            background: rgba(15, 23, 42, 0.65);
-            backdrop-filter: blur(4px);
-            display: none; align-items: flex-end; justify-content: center;
-            z-index: 100;
-        }
-        .modal-overlay.active { display: flex; }
-        .modal-box {
-            background: var(--surface);
-            width: 100%; max-width: 500px;
-            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-            padding: 24px;
-            padding-bottom: calc(24px + env(safe-area-inset-bottom));
-            animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -883,7 +883,7 @@
         }
 
         // Gọi hàm này trong loadDashboard để đồng bộ dữ liệu
-        function         function syncMgrImagesAndWallet(cafeData) {
+        function syncMgrImagesAndWallet(cafeData) {
             if (!cafeData) return; 
             
             const walletEl = document.getElementById('statWallet');
