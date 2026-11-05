@@ -48,30 +48,36 @@
             width: 100%; max-width: 500px; min-height: 100vh;
             background: var(--surface); position: relative;
             overflow-x: hidden; box-shadow: var(--shadow-lg); margin: 0 auto;
-            padding-bottom: 100px; /* Đẩy nội dung lên tránh bị nav che */
+            padding-bottom: 100px;
         }
 
         /* Header & Hero Card */
         .dash-header {
-            background: var(--navy); padding: 28px 24px 40px;
+            background: var(--navy); padding: 28px 24px 30px; /* Sửa padding để không bị đè */
             position: relative; border-radius: 0 0 24px 24px; overflow: visible; z-index: 10;
         }
-        .dash-topbar { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; }
+        .dash-topbar { display: flex; justify-content: space-between; align-items: flex-start; position: relative; z-index: 1; }
         .dash-greeting p { font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 500; margin-bottom: 2px; }
-        .dash-greeting h2 { font-size: 22px; font-weight: 800; color: var(--white); letter-spacing: -0.3px; }
-        .dash-greeting .tier-badge { font-size: 12px; background: rgba(255,255,255,0.2); color: #fff; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-top: 6px; font-weight: 600; }
+        .dash-greeting h2 { font-size: 22px; font-weight: 800; color: var(--white); letter-spacing: -0.3px; line-height: 1.2; }
+        .dash-greeting .tier-badge { font-size: 11px; background: rgba(255,255,255,0.2); color: #fff; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-top: 6px; font-weight: 600; }
         
+        /* Nút đăng xuất fix tròn */
         .avatar-btn {
-            width: 44px; height: 44px; background: rgba(255, 255, 255, 0.1);
+            width: 40px !important; height: 40px !important;
+            min-width: 40px !important; min-height: 40px !important;
+            flex-shrink: 0; aspect-ratio: 1/1;
+            background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(4px);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            border-radius: 50% !important; display: flex; align-items: center; justify-content: center;
             color: #fff; font-size: 15px; cursor: pointer; transition: all 0.2s;
+            padding: 0;
         }
         .avatar-btn:active { transform: scale(0.95); }
 
+        /* Hero card dịch xuống 1 chút để không bị đè */
         .hero-card {
             background: var(--white); border-radius: var(--radius-lg);
-            margin: -24px 20px 20px; padding: 20px; box-shadow: var(--shadow-md);
+            margin: 16px 20px 20px; padding: 20px; box-shadow: var(--shadow-md);
             position: relative; z-index: 2; border: 1px solid rgba(226, 232, 240, 0.8);
             display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; text-align: center;
         }
@@ -81,18 +87,18 @@
         .stat-box h3 { font-size: 24px; font-weight: 800; color: var(--navy); line-height: 1; }
         .stat-box.wallet h3 { color: var(--success); }
 
-        /* Bottom Nav - Floating Pill */
+        /* Bottom Nav - Floating Pill + Nút Scan ở giữa */
         nav.bottom-nav {
             position: fixed !important; bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
             left: 50% !important; transform: translateX(-50%) !important;
             display: flex !important; align-items: center !important; justify-content: space-around !important;
-            padding: 6px 8px !important; width: auto !important; min-width: 280px !important;
+            padding: 6px 8px !important; width: auto !important; min-width: 320px !important;
             background: rgba(255, 255, 255, 0.95) !important; backdrop-filter: blur(24px) saturate(180%) !important;
             border-radius: 32px !important; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08), 0 12px 32px rgba(15, 23, 42, 0.12) !important;
             z-index: 90 !important;
         }
         nav.bottom-nav .nav-item {
-            width: 56px !important; height: 48px !important; background: transparent !important;
+            flex: 1; height: 48px !important; background: transparent !important;
             border: none !important; display: flex !important; flex-direction: column !important;
             align-items: center !important; justify-content: center !important; gap: 4px !important;
             color: var(--muted) !important; font-size: 10px !important; font-weight: 700 !important;
@@ -101,6 +107,20 @@
         nav.bottom-nav .nav-item i { font-size: 20px !important; margin-bottom: 0 !important; }
         nav.bottom-nav .nav-item.active { color: var(--navy) !important; }
         nav.bottom-nav .nav-item.active i { transform: translateY(-2px) scale(1.1) !important; }
+
+        /* Nút Scan nổi bật ở giữa */
+        nav.bottom-nav .nav-item.nav-scan { flex: 0 0 auto !important; width: 64px !important; }
+        nav.bottom-nav .nav-item.nav-scan i {
+            width: 56px !important; height: 56px !important;
+            background: var(--navy) !important; color: #fff !important;
+            border-radius: 50% !important; border: 4px solid #ffffff !important;
+            display: flex !important; align-items: center !important; justify-content: center !important;
+            font-size: 24px !important; margin-top: -24px !important;
+            box-shadow: 0 6px 16px rgba(27, 43, 122, 0.3) !important;
+            transform: translateY(-2px) !important;
+        }
+        nav.bottom-nav .nav-item.nav-scan:hover i { transform: translateY(-4px) !important; background: var(--navy-deep) !important; }
+        nav.bottom-nav .nav-item.nav-scan span { display: none; }
 
         /* Task Item (Card) */
         .task-item {
@@ -143,7 +163,7 @@
         }
         .task-tab.active { background: var(--navy); color: #fff; box-shadow: 0 2px 8px rgba(27, 43, 122, 0.25); }
 
-        /* Modal (Dùng cho Quét QR) */
+        /* Modal */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65);
             backdrop-filter: blur(8px); display: none; align-items: flex-end; justify-content: center; z-index: 100;
@@ -155,9 +175,7 @@
             padding-bottom: calc(24px + env(safe-area-inset-bottom)); animation: slideUp 0.3s ease-out;
         }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .modal-header {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
-        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-header h3 { font-size: 18px; font-weight: 800; color: var(--navy); }
         .modal-close {
             width: 32px; height: 32px; background: #E2E8F0; border-radius: 50%;
@@ -178,30 +196,45 @@
         .toast.success { background-color: rgba(27,43,122,0.95); }
         .toast.error { background-color: rgba(239,68,68,0.95); }
 
-        /* Nút cài đặt PWA */
-        #btnInstall {
-            display: none; background-color: #28a745; position: fixed; bottom: 90px; right: 20px; 
-            z-index: 9999; padding: 10px 15px; border: none; border-radius: 30px; 
-            color: white; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
+        #btnInstall { display: none; background-color: #28a745; position: fixed; bottom: 90px; right: 20px; z-index: 9999; padding: 10px 15px; border: none; border-radius: 30px; color: white; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         
         /* Empty State */
         .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
         .empty-state i { font-size: 36px; color: #CBD5E1; margin-bottom: 12px; }
 
-        /* Floating Button (Scan QR) */
-        .fab-scan {
-            position: fixed; bottom: 90px; right: 24px;
-            width: 60px; height: 60px;
-            background: var(--navy);
-            color: white; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 24px;
-            box-shadow: 0 8px 24px rgba(27, 43, 122, 0.35);
-            cursor: pointer; border: none; z-index: 40;
-            transition: transform 0.2s;
+        /* ===== SETTINGS ACCORDION ===== */
+        .settings-section {
+            background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md);
+            margin-bottom: 12px; overflow: hidden;
         }
-        .fab-scan:active { transform: scale(0.92); }
+        .settings-header {
+            padding: 16px; display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; background: #F8FAFC; font-weight: 700; color: var(--navy); font-size: 15px;
+        }
+        .settings-header i { color: var(--navy-light); transition: transform 0.2s; }
+        .settings-content { padding: 16px; display: none; border-top: 1px solid var(--border); }
+        .settings-content.active { display: block; }
+        .settings-header.active i.fa-chevron-down { transform: rotate(180deg); }
+
+        /* ===== REVENUE STYLES ===== */
+        .rev-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+        .rev-stat-box {
+            background: #fff; border: 1px solid var(--border); border-radius: 14px;
+            padding: 14px 12px; text-align: center; box-shadow: var(--shadow-sm);
+        }
+        .rev-stat-value { font-size: 20px; font-weight: 800; line-height: 1.15; margin-bottom: 4px; }
+        .rev-stat-label { font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+        .rev-card {
+            background: #fff; border: 1px solid var(--border); border-radius: 14px;
+            padding: 12px 14px; margin-bottom: 10px; box-shadow: var(--shadow-sm);
+        }
+        .rev-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+        .rev-card-title { font-weight: 700; color: var(--text); font-size: 14px; }
+        .rev-card-amount { font-weight: 800; color: var(--navy); font-size: 15px; }
+        .rev-card-meta { font-size: 12px; color: var(--muted); line-height: 1.6; display: flex; flex-direction: column; gap: 4px; }
+        .rev-status { font-size: 10px; font-weight: 800; padding: 3px 9px; border-radius: 20px; text-transform: uppercase; flex-shrink: 0; }
+        .rev-status.paid { background: #D1FAE5; color: #065F46; }
+        .rev-status.unpaid { background: #FEF3C7; color: #92400E; }
     </style>
 </head>
 <body>
@@ -238,7 +271,7 @@
                 <div class="dash-greeting">
                     <p>QUÁN HIỆN TẠI</p>
                     <h2 id="headerCafeName">Đang tải...</h2>
-                    <div id="headerCafeTier" class="tier-badge">Tier 2</div>
+                    <div id="headerCafeTier" class="tier-badge">Quán cấp 2</div>
                 </div>
                 <button onclick="handleLogout()" class="avatar-btn">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
@@ -305,19 +338,19 @@
                     </select>
                 </div>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
-                    <div class="task-item" style="padding: 12px; text-align: center; background: var(--navy-pale); border: 1px solid var(--navy-light); margin-bottom: 0;">
-                        <p style="font-size: 11px; font-weight: 700; color: var(--navy); text-transform: uppercase;">Tổng doanh thu</p>
-                        <h3 id="statTotalRevenue" style="font-size: 20px; font-weight: 800; color: var(--navy); margin: 4px 0;">0đ</h3>
+                <div class="rev-stats">
+                    <div class="rev-stat-box" style="background: var(--navy-pale); border-color: var(--navy-light);">
+                        <div class="rev-stat-value" id="statTotalRevenue" style="color: var(--navy);">0đ</div>
+                        <div class="rev-stat-label" style="color: var(--navy);">Tổng doanh thu</div>
                     </div>
-                    <div class="task-item" style="padding: 12px; text-align: center; background: #FEF2F2; border: 1px solid #FECACA; margin-bottom: 0;">
-                        <p style="font-size: 11px; font-weight: 700; color: #991B1B; text-transform: uppercase;">Chưa thanh toán</p>
-                        <h3 id="statUnpaid" style="font-size: 20px; font-weight: 800; color: #991B1B; margin: 4px 0;">0đ</h3>
+                    <div class="rev-stat-box" style="background: #FEF2F2; border-color: #FECACA;">
+                        <div class="rev-stat-value" id="statUnpaid" style="color: #991B1B;">0đ</div>
+                        <div class="rev-stat-label" style="color: #991B1B;">Chưa thanh toán</div>
                     </div>
-                </div>
-                <div class="task-item" style="padding: 12px; text-align: center; background: #ECFDF5; border: 1px solid #A7F3D0; margin-bottom: 16px;">
-                    <p style="font-size: 11px; font-weight: 700; color: #065F46; text-transform: uppercase;">Đã thanh toán</p>
-                    <h3 id="statPaid" style="font-size: 20px; font-weight: 800; color: #065F46; margin: 4px 0;">0đ</h3>
+                    <div class="rev-stat-box" style="grid-column: span 2; background: #ECFDF5; border-color: #A7F3D0;">
+                        <div class="rev-stat-value" id="statPaid" style="color: #065F46;">0đ</div>
+                        <div class="rev-stat-label" style="color: #065F46;">Đã thanh toán</div>
+                    </div>
                 </div>
                 
                 <div id="historyList" style="display: flex; flex-direction: column; gap: 10px;"></div>
@@ -325,87 +358,113 @@
 
             <!-- ================= VIEW: CÀI ĐẶT (SETTINGS) ================= -->
             <div id="view-settings" class="pa-view" style="display: none;">
-                <!-- Thông tin quán -->
-                <div class="task-item">
-                    <h3 style="font-size: 15px; font-weight: 800; color: var(--navy); margin-bottom: 12px;"><i class="fa-solid fa-store"></i> Thông tin quán</h3>
-                    
-                    <label style="display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px;">Tên quán</label>
-                    <input type="text" id="setCafeName" class="input-field">
-                    
-                    <label style="display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px;">Địa chỉ</label>
-                    <input type="text" id="setCafeAddress" class="input-field">
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
-                        <div>
-                            <label style="display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px;">Vĩ độ (Lat)</label>
-                            <input type="number" id="setCafeLat" class="input-field" step="any">
-                        </div>
-                        <div>
-                            <label style="display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px;">Kinh độ (Lng)</label>
-                            <input type="number" id="setCafeLng" class="input-field" step="any">
-                        </div>
+                
+                <!-- 1. Thông tin quán -->
+                <div class="settings-section">
+                    <div class="settings-header" onclick="toggleSettings('info')">
+                        <span><i class="fa-solid fa-store" style="margin-right: 8px;"></i>Thông tin quán</span>
+                        <i class="fa-solid fa-chevron-down"></i>
                     </div>
-                    <button onclick="getCurrentGps()" class="btn-sm outline" style="width: 100%; margin-bottom: 16px;">
-                        <i class="fa-solid fa-location-crosshairs"></i> Lấy GPS hiện tại
-                    </button>
+                    <div id="settings-info" class="settings-content">
+                        <label style="display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px;">Tên quán</label>
+                        <input type="text" id="setCafeName" class="input-field">
+                        
+                        <label style="display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px;">Địa chỉ</label>
+                        <input type="text" id="setCafeAddress" class="input-field">
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                            <div>
+                                <label style="display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px;">Vĩ độ (Lat)</label>
+                                <input type="number" id="setCafeLat" class="input-field" step="any">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px;">Kinh độ (Lng)</label>
+                                <input type="number" id="setCafeLng" class="input-field" step="any">
+                            </div>
+                        </div>
+                        <button onclick="getCurrentGps()" class="btn-sm outline" style="width: 100%; margin-bottom: 16px;">
+                            <i class="fa-solid fa-location-crosshairs"></i> Lấy GPS hiện tại
+                        </button>
 
-                    <div style="margin-bottom: 12px;">
-                        <label style="display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px;">Số bàn tối đa</label>
-                        <input type="number" id="setCafeTotalTables" class="input-field" min="1">
-                    </div>
-                    
-                    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-                        <div style="flex: 1; background: #F8FAFC; padding: 8px; border-radius: 8px; text-align: center; border: 1px solid var(--border);">
-                            <div style="font-size: 11px; font-weight: 700; color: var(--muted);">Đánh giá</div>
-                            <div style="font-size: 14px; font-weight: 800; color: var(--navy);" id="setCafeRating">0 <i class="fa-solid fa-star" style="color:#FCD34D; font-size:12px;"></i></div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                            <div>
+                                <label style="display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px;">Số bàn tối đa</label>
+                                <input type="number" id="setCafeTotalTables" class="input-field" min="1">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px;">Số ghế tối đa</label>
+                                <input type="number" id="setCafeMaxSeats" class="input-field" min="1">
+                            </div>
                         </div>
-                        <div style="flex: 1; background: #F8FAFC; padding: 8px; border-radius: 8px; text-align: center; border: 1px solid var(--border);">
-                            <div style="font-size: 11px; font-weight: 700; color: var(--muted);">Lượt review</div>
-                            <div style="font-size: 14px; font-weight: 800; color: var(--navy);" id="setCafeReviewCount">0</div>
+                        
+                        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                            <div style="flex: 1; background: #F8FAFC; padding: 8px; border-radius: 8px; text-align: center; border: 1px solid var(--border);">
+                                <div style="font-size: 11px; font-weight: 700; color: var(--muted);">Đánh giá</div>
+                                <div style="font-size: 14px; font-weight: 800; color: var(--navy);" id="setCafeRating">0 <i class="fa-solid fa-star" style="color:#FCD34D; font-size:12px;"></i></div>
+                            </div>
+                            <div style="flex: 1; background: #F8FAFC; padding: 8px; border-radius: 8px; text-align: center; border: 1px solid var(--border);">
+                                <div style="font-size: 11px; font-weight: 700; color: var(--muted);">Lượt review</div>
+                                <div style="font-size: 14px; font-weight: 800; color: var(--navy);" id="setCafeReviewCount">0</div>
+                            </div>
                         </div>
-                    </div>
 
-                    <button onclick="saveCafeSettings()" class="btn-sm primary" style="width: 100%; padding: 14px; font-size: 14px;">
-                        <i class="fa-solid fa-floppy-disk"></i> Lưu thông tin quán
-                    </button>
+                        <button onclick="saveCafeSettings()" class="btn-sm primary" style="width: 100%; padding: 14px; font-size: 14px;">
+                            <i class="fa-solid fa-floppy-disk"></i> Lưu thông tin quán
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Hình ảnh quán -->
-                <div class="task-item">
-                    <h3 style="font-size: 15px; font-weight: 800; color: var(--navy); margin-bottom: 12px;"><i class="fa-solid fa-camera"></i> Hình ảnh quán (Tối đa 6)</h3>
-                    <div id="mgrImagesList" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px;"></div>
-                    <input type="file" id="mgrImageInput" accept="image/*" multiple style="display: none;" onchange="handleMgrImageSelect(event)">
-                    <button onclick="document.getElementById('mgrImageInput').click()" class="btn-sm outline" style="width: 100%; margin-bottom: 8px;">
-                        <i class="fa-solid fa-plus"></i> Thêm ảnh
-                    </button>
-                    <button onclick="saveMgrImages()" class="btn-sm primary" style="width: 100%;">
-                        <i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi ảnh
-                    </button>
+                <!-- 2. Hình ảnh quán -->
+                <div class="settings-section">
+                    <div class="settings-header" onclick="toggleSettings('images')">
+                        <span><i class="fa-solid fa-camera" style="margin-right: 8px;"></i>Hình ảnh quán (Tối đa 6)</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div id="settings-images" class="settings-content">
+                        <div id="mgrImagesList" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px;"></div>
+                        <input type="file" id="mgrImageInput" accept="image/*" multiple style="display: none;" onchange="handleMgrImageSelect(event)">
+                        <button onclick="document.getElementById('mgrImageInput').click()" class="btn-sm outline" style="width: 100%; margin-bottom: 8px;">
+                            <i class="fa-solid fa-plus"></i> Thêm ảnh
+                        </button>
+                        <button onclick="saveMgrImages()" class="btn-sm primary" style="width: 100%;">
+                            <i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi ảnh
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Quản lý nhân viên -->
-                <div class="task-item" id="staffManagementBox">
-                    <h3 style="font-size: 15px; font-weight: 800; color: var(--navy); margin-bottom: 12px;"><i class="fa-solid fa-users"></i> Nhân viên quán</h3>
-                    <div id="staffList" style="margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;"></div>
-                    
-                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                        <input type="text" id="newStaffName" class="input-field" placeholder="Tên NV" style="margin-bottom: 0; flex: 1;">
-                        <input type="email" id="newStaffEmail" class="input-field" placeholder="Email NV" style="margin-bottom: 0; flex: 1.5;">
+                <!-- 3. Quản lý nhân viên -->
+                <div class="settings-section" id="staffManagementBox">
+                    <div class="settings-header" onclick="toggleSettings('staff')">
+                        <span><i class="fa-solid fa-users" style="margin-right: 8px;"></i>Nhân viên quán</span>
+                        <i class="fa-solid fa-chevron-down"></i>
                     </div>
-                    <button onclick="addStaff()" class="btn-sm outline" style="width: 100%;">
-                        <i class="fa-solid fa-plus"></i> Thêm nhân viên
-                    </button>
+                    <div id="settings-staff" class="settings-content">
+                        <div id="staffList" style="margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;"></div>
+                        
+                        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                            <input type="text" id="newStaffName" class="input-field" placeholder="Tên NV" style="margin-bottom: 0; flex: 1;">
+                            <input type="email" id="newStaffEmail" class="input-field" placeholder="Email NV" style="margin-bottom: 0; flex: 1.5;">
+                        </div>
+                        <button onclick="addStaff()" class="btn-sm outline" style="width: 100%;">
+                            <i class="fa-solid fa-plus"></i> Thêm nhân viên
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- BOTTOM NAVIGATION (Menu chính) -->
+
+    <!-- BOTTOM NAVIGATION -->
     <nav class="bottom-nav" id="mainNav">
         <button class="nav-item" data-menu="booking" onclick="switchMainMenu('booking')" id="nav-booking">
             <i class="fa-solid fa-calendar-check"></i><span>Đặt chỗ</span>
         </button>
         <button class="nav-item active" data-menu="operation" onclick="switchMainMenu('operation')" id="nav-operation">
             <i class="fa-solid fa-store"></i><span>Vận hành</span>
+        </button>
+        <!-- NÚT SCAN Ở GIỮA -->
+        <button class="nav-item nav-scan" onclick="openQRModal()">
+            <i class="fa-solid fa-qrcode"></i>
         </button>
         <button class="nav-item" data-menu="revenue" onclick="switchMainMenu('revenue')" id="nav-revenue">
             <i class="fa-solid fa-file-invoice-dollar"></i><span>Doanh thu</span>
@@ -414,10 +473,6 @@
             <i class="fa-solid fa-gear"></i><span>Cài đặt</span>
         </button>
     </nav>
-    <!-- Nút Quét QR -->
-    <button onclick="openQRModal()" id="fabScan" class="fab-scan" style="display: none;">
-        <i class="fa-solid fa-qrcode"></i>
-    </button>
 
     <!-- ================= MODAL QUÉT QR ================= -->
     <div id="qrModal" class="modal-overlay">
@@ -451,12 +506,8 @@
         </div>
     </div>
 
-    <!-- Toast -->
-        <div id="toast" class="toast"></div>
-    
-    <!-- BUTTON CÀI ĐẶT PWA -->
+    <div id="toast" class="toast"></div>
     <button id="btnInstall">📥 Cài đặt Ứng dụng</button>
-
     <script>
         const CLOUD_FUNCTION_URL = "https://get-upload-url-test-824148866382.asia-southeast1.run.app";
         let managerToken = localStorage.getItem('pm_manager_token') || '';
@@ -948,7 +999,19 @@
             document.getElementById('list-confirm').style.display = (tab === 'confirm') ? 'flex' : 'none';
         }
 
-                    async function loadDashboard() {
+        function toggleSettings(section) {
+            const content = document.getElementById('settings-' + section);
+            const header = content.previousElementSibling;
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                header.classList.remove('active');
+            } else {
+                content.classList.add('active');
+                header.classList.add('active');
+            }
+        }
+        
+                async function loadDashboard() {
             if (!managerId || !managerToken) return;
             try {
                 const res = await mgrFetch(`${CLOUD_FUNCTION_URL}?action=cafeManagerGetStats&managerId=${managerId}&managerToken=${managerToken}`);
@@ -969,6 +1032,8 @@
                             document.getElementById('setCafeLng').value = c.location.lng || '';
                         }
                         document.getElementById('setCafeTotalTables').value = c.total_tables || '';
+                        document.getElementById('setCafeMaxSeats').value = c.max_seats || ''; // 🚨 THÊM MAX SEATS
+                        
                         document.getElementById('setCafeRating').innerHTML = `${c.avg_rating || 0} <i class="fa-solid fa-star" style="color:#FCD34D; font-size:12px;"></i>`;
                         document.getElementById('setCafeReviewCount').textContent = c.total_reviews || 0;
                         
@@ -976,10 +1041,10 @@
                         document.getElementById('headerCafeName').textContent = c.name;
                         const tierBadge = document.getElementById('headerCafeTier');
                         if (c.tier === 1) {
-                            tierBadge.textContent = 'Tier 1 (Free AI Credits)';
+                            tierBadge.textContent = 'Quán cấp 1'; // 🚨 Đổi text
                             tierBadge.style.background = 'rgba(16, 185, 129, 0.3)';
                         } else {
-                            tierBadge.textContent = 'Tier 2 (Trả phí)';
+                            tierBadge.textContent = 'Quán cấp 2'; // 🚨 Đổi text
                             tierBadge.style.background = 'rgba(255, 255, 255, 0.2)';
                         }
                     }
@@ -1239,7 +1304,6 @@
             const filterStatus = document.getElementById('historyPayStatus').value;
             const listContainer = document.getElementById('historyList');
             
-            // 1. Tính toán số liệu (luôn tính trên TOÀN BỘ data của khoảng thời gian)
             let totalRev = 0, totalUnpaid = 0, totalPaid = 0;
             allRevenueData.forEach(c => {
                 const amt = Number(c.revenue_amount) || 0;
@@ -1251,12 +1315,10 @@
                 }
             });
 
-            // Update UI stats
             document.getElementById('statTotalRevenue').textContent = totalRev.toLocaleString('vi-VN') + 'đ';
             document.getElementById('statUnpaid').textContent = totalUnpaid.toLocaleString('vi-VN') + 'đ';
             document.getElementById('statPaid').textContent = totalPaid.toLocaleString('vi-VN') + 'đ';
 
-            // 2. Lọc danh sách hiển thị
             let filtered = allRevenueData;
             if (filterStatus !== 'all') {
                 filtered = allRevenueData.filter(c => (c.payment_status || 'unpaid') === filterStatus);
@@ -1267,35 +1329,26 @@
                 return;
             }
 
-            // 3. Render từng item (Không có nút bấm thu tiền, chỉ có badge)
             listContainer.innerHTML = filtered.map(c => {
                 const isPaid = (c.payment_status || 'unpaid') === 'paid';
+                const statusClass = isPaid ? 'paid' : 'unpaid';
+                const statusText = isPaid ? 'Đã thanh toán' : 'Chưa thanh toán';
+                
                 return `
-                <div class="task-item" style="padding: 12px;">
-                    <div class="task-header">
+                <div class="rev-card">
+                    <div class="rev-card-header">
                         <div>
-                            <div class="task-title" style="font-size: 14px;">${c.guest_name || 'Khách lẻ'}</div>
-                            <div class="task-meta">
-                                <span><i class="fa-regular fa-clock"></i> Vào: ${fmtDateTime(c.check_in_at)}</span>
-                                <span><i class="fa-solid fa-arrow-right-from-bracket"></i> Ra: ${fmtDateTime(c.check_out_at)}</span>
+                            <div class="rev-card-title">${c.guest_name || 'Khách lẻ'}</div>
+                            <div class="rev-card-meta">
+                                <span><i class="fa-regular fa-clock"></i> In: ${fmtDateTime(c.check_in_at)}</span>
+                                <span><i class="fa-solid fa-arrow-right-from-bracket"></i> Out: ${fmtDateTime(c.check_out_at)}</span>
+                                <span><i class="fa-solid fa-hourglass-half"></i> Thời lượng: <b>${c.billable_hours}h</b></span>
                             </div>
                         </div>
                         <div style="text-align: right;">
-                            <div style="font-size: 15px; font-weight: 700; color: var(--navy);">${Number(c.revenue_amount).toLocaleString('vi-VN')}đ</div>
-                            <div style="font-size: 11px; color: var(--muted); font-weight: 600;">${c.billable_hours}h</div>
+                            <div class="rev-card-amount">${Number(c.revenue_amount).toLocaleString('vi-VN')}đ</div>
+                            <div class="rev-status ${statusClass}" style="margin-top: 4px; display: inline-block;">${statusText}</div>
                         </div>
-                    </div>
-                    
-                    <div class="btn-actions" style="justify-content: flex-start;">
-                        ${isPaid ? `
-                            <div style="display: flex; align-items: center; gap: 6px; color: #065F46; font-size: 12px; font-weight: 700; background: #ECFDF5; padding: 6px 12px; border-radius: 8px; border: 1px solid #A7F3D0;">
-                                <i class="fa-solid fa-circle-check"></i> Đã thanh toán
-                            </div>
-                        ` : `
-                            <div style="display: flex; align-items: center; gap: 6px; color: #991B1B; font-size: 12px; font-weight: 700; background: #FEF2F2; padding: 6px 12px; border-radius: 8px; border: 1px solid #FECACA;">
-                                <i class="fa-solid fa-clock"></i> Chưa thanh toán
-                            </div>
-                        `}
                     </div>
                 </div>
                 `;
@@ -1581,7 +1634,8 @@
                         address: document.getElementById('setCafeAddress').value.trim(),
                         lat: document.getElementById('setCafeLat').value,
                         lng: document.getElementById('setCafeLng').value,
-                        totalTables: document.getElementById('setCafeTotalTables').value // 🚨 Đã đổi thành totalTables
+                        totalTables: document.getElementById('setCafeTotalTables').value,
+                        maxSeats: document.getElementById('setCafeMaxSeats').value // 🚨 THÊM MAX SEATS
                     }).toString()
                 });
                 const data = await res.json();
