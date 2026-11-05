@@ -44,12 +44,12 @@
 
         /* 🚨 Class bọc nội dung để không bị bè ra trên màn hình ngang */
         .main-content {
-            width: 100%; max-width: 720px; margin: 0 auto; padding: 20px 20px 0;
+            width: 100%; max-width: 720px; margin: 0 auto; padding: 0 20px;
         }
 
         /* Header */
         .dash-header {
-            background: var(--navy); padding: 28px 24px 40px;
+            background: var(--navy); padding: 28px 0 24px;
             position: relative; border-radius: 0 0 24px 24px; overflow: visible; z-index: 10;
         }
         .dash-topbar { display: flex; justify-content: space-between; align-items: flex-start; position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
@@ -68,11 +68,9 @@
         /* Hero Card */
         .hero-card {
             background: var(--white); border-radius: var(--radius-lg);
-            margin: -24px 20px 20px; padding: 20px; box-shadow: var(--shadow-md);
+            margin: 20px 0; padding: 20px; box-shadow: var(--shadow-md);
             position: relative; z-index: 2; border: 1px solid rgba(226, 232, 240, 0.8);
             display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; text-align: center;
-            max-width: 680px; /* Căn giữa cho đẹp */
-            margin-left: auto; margin-right: auto;
         }
         .stat-box { display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid var(--border); }
         .stat-box:last-child { border-right: none; }
@@ -255,37 +253,42 @@
 
         <!-- ================= DASHBOARD SCREEN ================= -->
     <div id="dashboard-screen" class="app" style="display: none;">
-        
-        <!-- Header -->
+               <!-- Header -->
         <header class="dash-header">
-            <div class="dash-topbar">
-                <div class="dash-greeting">
-                    <p>QUÁN HIỆN TẠI</p>
-                    <h2 id="headerCafeName">Đang tải...</h2>
-                    <div id="headerCafeTier" class="tier-badge">Quán cấp 2</div>
+            <!-- 🚨 Bọc main-content vào trong header để căn giữa chữ -->
+            <div class="main-content" style="padding-top: 0; padding-bottom: 0;">
+                <div class="dash-topbar">
+                    <div class="dash-greeting">
+                        <p>QUÁN HIỆN TẠI</p>
+                        <h2 id="headerCafeName">Đang tải...</h2>
+                        <div id="headerCafeTier" class="tier-badge">Quán cấp 2</div>
+                    </div>
+                    <button onclick="handleLogout()" class="avatar-btn">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    </button>
                 </div>
-                <button onclick="handleLogout()" class="avatar-btn">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                </button>
             </div>
         </header>
 
-        <!-- Hero Card (Stats) -->
-        <div class="hero-card">
-            <div class="stat-box">
-                <p>Đang ngồi</p>
-                <h3 id="statActive">0</h3>
+        <!-- 🚨 Chuyển Hero Card vào trong main-content -->
+        <div class="main-content">
+            
+            <!-- Hero Card (Stats) -->
+            <div class="hero-card">
+                <div class="stat-box">
+                    <p>Đang ngồi</p>
+                    <h3 id="statActive">0</h3>
+                </div>
+                <div class="stat-box">
+                    <p>Chờ tới</p>
+                    <h3 id="statPending">0</h3>
+                </div>
+                <div class="stat-box wallet">
+                    <p>Số dư ví</p>
+                    <h3 id="statWallet">0đ</h3>
+                </div>
             </div>
-            <div class="stat-box">
-                <p>Chờ tới</p>
-                <h3 id="statPending">0</h3>
-            </div>
-            <div class="stat-box wallet">
-                <p>Số dư ví</p>
-                <h3 id="statWallet">0đ</h3>
-            </div>
-        </div>
-
+            
         <!-- 🚨 KHUNG BỌC NỘI DUNG (Để căn giữa trên màn hình lớn) -->
         <div class="main-content">
 
