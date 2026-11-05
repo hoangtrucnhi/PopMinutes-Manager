@@ -16,7 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-                    /* ========== TOÀN BỘ STYLE ========== */
+                /* ========== CSS ĐỒNG BỘ APP USER ========== */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
             --navy: #1B2B7A; --navy-deep: #131F5C; --navy-pale: #F0F3FF;
@@ -34,20 +34,25 @@
             min-height: 100vh; color: var(--text); -webkit-tap-highlight-color: transparent;
         }
         
-        /* 🚨 FIX: Cho phép app full chiều ngang trên Tablet */
+        /* Khung App */
         .app {
-            width: 100%; max-width: 1200px; /* Full ngang */
-            min-height: 100vh; background: var(--surface); position: relative;
+            width: 100%; max-width: 1200px; min-height: 100vh;
+            background: var(--surface); position: relative;
             overflow-x: hidden; box-shadow: var(--shadow-lg); margin: 0 auto;
             padding-bottom: 100px;
         }
 
-        /* Header & Hero Card */
+        /* 🚨 Class bọc nội dung để không bị bè ra trên màn hình ngang */
+        .main-content {
+            width: 100%; max-width: 720px; margin: 0 auto; padding: 20px 20px 0;
+        }
+
+        /* Header */
         .dash-header {
-            background: var(--navy); padding: 28px 24px 30px;
+            background: var(--navy); padding: 28px 24px 40px;
             position: relative; border-radius: 0 0 24px 24px; overflow: visible; z-index: 10;
         }
-        .dash-topbar { display: flex; justify-content: space-between; align-items: flex-start; position: relative; z-index: 1; }
+        .dash-topbar { display: flex; justify-content: space-between; align-items: flex-start; position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
         .dash-greeting p { font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 500; margin-bottom: 2px; }
         .dash-greeting h2 { font-size: 22px; font-weight: 800; color: var(--white); letter-spacing: -0.3px; line-height: 1.2; }
         .dash-greeting .tier-badge { font-size: 11px; background: rgba(255,255,255,0.2); color: #fff; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-top: 6px; font-weight: 600; }
@@ -60,17 +65,32 @@
         }
         .avatar-btn:active { transform: scale(0.95); }
 
+        /* Hero Card */
         .hero-card {
             background: var(--white); border-radius: var(--radius-lg);
-            margin: 16px 20px 20px; padding: 20px; box-shadow: var(--shadow-md);
+            margin: -24px 20px 20px; padding: 20px; box-shadow: var(--shadow-md);
             position: relative; z-index: 2; border: 1px solid rgba(226, 232, 240, 0.8);
             display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; text-align: center;
+            max-width: 680px; /* Căn giữa cho đẹp */
+            margin-left: auto; margin-right: auto;
         }
         .stat-box { display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid var(--border); }
         .stat-box:last-child { border-right: none; }
         .stat-box p { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
         .stat-box h3 { font-size: 24px; font-weight: 800; color: var(--navy); line-height: 1; }
         .stat-box.wallet h3 { color: var(--success); }
+
+        /* Telegram Banner - Fix lỗi vỡ chữ */
+        .tg-banner {
+            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+            background: #fff; border-radius: var(--radius-md); padding: 12px 16px; 
+            border: 1px solid var(--border); box-shadow: var(--shadow-sm); margin-bottom: 20px;
+        }
+        .tg-banner-info { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+        .tg-banner-text { display: flex; flex-direction: column; }
+        .tg-banner-text .title { font-size: 13px; font-weight: 700; white-space: nowrap; }
+        .tg-banner-text .status { font-size: 11px; color: var(--muted); }
+        .tg-btn { padding: 6px 12px !important; font-size: 12px !important; flex-shrink: 0; width: auto !important; }
 
         /* Bottom Nav - Floating Pill */
         nav.bottom-nav {
@@ -110,12 +130,12 @@
             border: 1px solid var(--border); box-shadow: var(--shadow-sm);
             width: 100%; box-sizing: border-box; margin-bottom: 12px;
         }
-        .task-header { display: flex; justify-content: space-between; align-items: flex-start; }
-        .task-title { font-weight: 700; font-size: 15px; color: var(--text); }
+        .task-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+        .task-title { font-weight: 700; font-size: 15px; color: var(--text); word-break: break-word; }
         .task-meta { font-size: 12.5px; color: var(--muted); margin-top: 6px; display: flex; flex-direction: column; gap: 4px; }
         .task-meta i { width: 14px; text-align: center; }
 
-        /* 🚨 FIX: Căn chỉnh 2 nút ngang hàng, cách đều, bỏ icon */
+        /* Nút bấm trong Card */
         .btn-actions {
             display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
             margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--border);
@@ -137,6 +157,7 @@
         .task-tab {
             flex: 1; padding: 10px; border-radius: 26px; font-weight: 700; font-size: 13px;
             cursor: pointer; background: transparent; color: var(--muted); border: none; transition: all 0.2s;
+            text-align: center;
         }
         .task-tab.active { background: var(--navy); color: #fff; box-shadow: 0 2px 8px rgba(27, 43, 122, 0.25); }
 
@@ -147,9 +168,8 @@
             background: #fff; color: var(--text);
         }
         .input-field:focus { border-color: var(--navy); box-shadow: 0 0 0 4px var(--navy-pale); }
-        .input-field:disabled { background: #F1F5F9; color: #94A3B8; cursor: not-allowed; }
 
-        /* Modal */
+        /* Modal & Toast */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65);
             backdrop-filter: blur(8px); display: none; align-items: flex-end; justify-content: center; z-index: 100;
@@ -169,45 +189,31 @@
             border: none; cursor: pointer; color: var(--muted); font-size: 14px;
         }
 
-        /* Toast */
         .toast {
             position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
             padding: 12px 18px; border-radius: 18px; color: white; font-weight: 600; font-size: 14px;
             display: flex; align-items: flex-start; gap: 8px; opacity: 0; pointer-events: none;
             transition: opacity 0.3s ease, transform 0.3s ease; z-index: 9999; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
             width: fit-content; max-width: calc(100vw - 32px); line-height: 1.4;
-            backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2);
         }
         .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
         .toast.success { background-color: rgba(27,43,122,0.95); }
         .toast.error { background-color: rgba(239,68,68,0.95); }
 
-        /* ===== SETTINGS ACCORDION ===== */
-        .settings-section {
-            background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md);
-            margin-bottom: 12px; overflow: hidden;
-        }
-        .settings-header {
-            padding: 16px; display: flex; justify-content: space-between; align-items: center;
-            cursor: pointer; background: #F8FAFC; font-weight: 700; color: var(--navy); font-size: 15px;
-        }
+        /* Settings Accordion */
+        .settings-section { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); margin-bottom: 12px; overflow: hidden; }
+        .settings-header { padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #F8FAFC; font-weight: 700; color: var(--navy); font-size: 15px; }
         .settings-header i { color: var(--navy-light); transition: transform 0.2s; }
         .settings-content { padding: 16px; display: none; border-top: 1px solid var(--border); }
         .settings-content.active { display: block; }
         .settings-header.active i.fa-chevron-down { transform: rotate(180deg); }
 
-        /* ===== REVENUE STYLES ===== */
+        /* Revenue */
         .rev-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-        .rev-stat-box {
-            background: #fff; border: 1px solid var(--border); border-radius: 14px;
-            padding: 14px 12px; text-align: center; box-shadow: var(--shadow-sm);
-        }
+        .rev-stat-box { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 14px 12px; text-align: center; box-shadow: var(--shadow-sm); }
         .rev-stat-value { font-size: 20px; font-weight: 800; line-height: 1.15; margin-bottom: 4px; }
         .rev-stat-label { font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; }
-        .rev-card {
-            background: #fff; border: 1px solid var(--border); border-radius: 14px;
-            padding: 12px 14px; margin-bottom: 10px; box-shadow: var(--shadow-sm);
-        }
+        .rev-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; box-shadow: var(--shadow-sm); }
         .rev-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
         .rev-card-title { font-weight: 700; color: var(--text); font-size: 14px; }
         .rev-card-amount { font-weight: 800; color: var(--navy); font-size: 15px; }
@@ -215,6 +221,10 @@
         .rev-status { font-size: 10px; font-weight: 800; padding: 3px 9px; border-radius: 20px; text-transform: uppercase; flex-shrink: 0; }
         .rev-status.paid { background: #D1FAE5; color: #065F46; }
         .rev-status.unpaid { background: #FEF3C7; color: #92400E; }
+        
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+        .empty-state i { font-size: 36px; color: #CBD5E1; margin-bottom: 12px; }
+        #btnInstall { display: none; background-color: #28a745; position: fixed; bottom: 90px; right: 20px; z-index: 9999; padding: 10px 15px; border: none; border-radius: 30px; color: white; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
@@ -243,8 +253,9 @@
         </div>
     </div>
 
-    <!-- ================= DASHBOARD SCREEN ================= -->
+        <!-- ================= DASHBOARD SCREEN ================= -->
     <div id="dashboard-screen" class="app" style="display: none;">
+        
         <!-- Header -->
         <header class="dash-header">
             <div class="dash-topbar">
@@ -275,23 +286,23 @@
             </div>
         </div>
 
-        <!-- Telegram Banner -->
-        <div style="margin: 0 20px 20px; background: #fff; border-radius: var(--radius-md); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); box-shadow: var(--shadow-sm);">
-            <div style="display: flex; align-items: center; gap: 8px; color: var(--text);">
-                <i class="fa-brands fa-telegram" style="font-size: 20px; color: #229ED9;"></i>
-                <div>
-                    <div style="font-size: 13px; font-weight: 700;">Thông báo Telegram</div>
-                    <div style="font-size: 11px; color: var(--muted);" id="tgStatusText">Chưa kết nối</div>
-                </div>
-            </div>
-            <button id="btnConnectTG" onclick="connectManagerTelegram()" class="btn-sm outline" style="padding: 6px 12px; font-size: 12px;">
-                Kết nối
-            </button>
-        </div>
+        <!-- 🚨 KHUNG BỌC NỘI DUNG (Để căn giữa trên màn hình lớn) -->
+        <div class="main-content">
 
-        <!-- Main Content Views -->
-        <div style="padding: 0 20px;">
-            
+            <!-- Telegram Banner -->
+            <div class="tg-banner">
+                <div class="tg-banner-info">
+                    <i class="fa-brands fa-telegram" style="font-size: 22px; color: #229ED9; flex-shrink: 0;"></i>
+                    <div class="tg-banner-text">
+                        <span class="title">Thông báo Telegram</span>
+                        <span class="status" id="tgStatusText">Chưa kết nối</span>
+                    </div>
+                </div>
+                <button id="btnConnectTG" onclick="connectManagerTelegram()" class="btn-sm outline tg-btn">
+                    Kết nối
+                </button>
+            </div>
+
             <!-- ================= VIEW: ĐẶT CHỖ (BOOKING) ================= -->
             <div id="view-booking" class="pa-view" style="display: none;">
                 <div id="list-pending" style="width: 100%; display: flex; flex-direction: column; gap: 12px;"></div>
@@ -338,7 +349,6 @@
 
             <!-- ================= VIEW: CÀI ĐẶT (SETTINGS) ================= -->
             <div id="view-settings" class="pa-view" style="display: none;">
-                
                 <!-- 1. Thông tin quán -->
                 <div class="settings-section">
                     <div class="settings-header" onclick="toggleSettings('info')">
@@ -431,7 +441,8 @@
                     </div>
                 </div>
             </div>
-        </div>
+            
+        </div> <!-- Kết thúc .main-content -->
     </div>
 
     <!-- BOTTOM NAVIGATION -->
