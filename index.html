@@ -950,7 +950,7 @@
         }
 
                 // Hàm chuyển Menu chính (Bottom Nav)
-            function function switchMainMenu(menu) {
+            function switchMainMenu(menu) {
             // 🚨 CHẶN STAFF TRUY CẬP TRÁI PHÉP
             const role = localStorage.getItem('pm_role') || 'manager';
             if (role === 'staff' && (menu === 'revenue' || menu === 'settings')) {
