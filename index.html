@@ -292,7 +292,7 @@
         <!-- 🚨 KHUNG BỌC NỘI DUNG (Để căn giữa trên màn hình lớn) -->
         <div class="main-content">
 
-            <!-- Telegram Banner -->
+        <!-- Telegram Banner -->
             <div class="tg-banner">
                 <div class="tg-banner-info">
                     <i class="fa-brands fa-telegram" style="font-size: 22px; color: #229ED9; flex-shrink: 0;"></i>
@@ -301,7 +301,7 @@
                         <span class="status" id="tgStatusText">Chưa kết nối</span>
                     </div>
                 </div>
-                <button id="btnConnectTG" onclick="connectManagerTelegram()" class="btn-sm outline tg-btn">
+                <button id="btnConnectTG" onclick="connectManagerTelegram()" class="btn-sm outline tg-btn" style="width: auto; flex-shrink: 0; padding: 6px 12px;">
                     Kết nối
                 </button>
             </div>
@@ -1139,7 +1139,7 @@
                     `;
                 }
 
-                return `
+                                return `
                 <div class="task-item">
                     <div class="task-header">
                         <div>
@@ -1150,14 +1150,15 @@
                                 <span><i class="fa-solid fa-users"></i> Tổng: <b>${c.guest_count || 1} ghế</b></span>
                             </div>
                         </div>
-                        <div style="text-align: right;">
-                            <div style="font-size: 20px; font-weight: 800; color: ${isConfirmed ? 'var(--success)' : '#F59E0B'};">
-                                ${c.elapsed_hours.toFixed(1)}h
+                        ${isConfirmed ? `
+                            <div style="color: var(--success); font-size: 11px; font-weight: 800; text-transform: uppercase; text-align: right; white-space: nowrap;">
+                                <i class="fa-solid fa-check-circle"></i> Đang ngồi
                             </div>
-                            <div class="status-text ${isConfirmed ? 'status-active' : 'status-wait'}" style="white-space: nowrap;">
-                                ${isConfirmed ? 'Đang ngồi' : 'Chưa xác nhận'}
+                        ` : `
+                            <div style="color: #F59E0B; font-size: 11px; font-weight: 800; text-transform: uppercase; text-align: right; white-space: nowrap;">
+                                <i class="fa-solid fa-clock"></i> Chờ quét
                             </div>
-                        </div>
+                        `}
                     </div>
                     ${guestControlHtml}
                 </div>
@@ -1238,7 +1239,7 @@
                         </div>
                         ${isConfirmed ? `
                             <div style="color: var(--success); font-size: 11px; font-weight: 800; text-transform: uppercase; text-align: right; white-space: nowrap;">
-                                <i class="fa-solid fa-check-circle"></i> Đã xác nhận
+                                <i class="fa-solid fa-check-circle"></i> Xác nhận
                             </div>
                         ` : `
                             <div style="color: #F59E0B; font-size: 11px; font-weight: 800; text-transform: uppercase; text-align: right; white-space: nowrap;">
