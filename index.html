@@ -1431,7 +1431,7 @@
             }
         }
         // ================= QR SCANNER =================
-        function openQRModal() {
+                async function openQRModal() {
             document.getElementById('qrModal').classList.add('active');
             document.getElementById('tableInputWrap').style.display = 'none';
             document.getElementById('qrResult').style.display = 'none';
@@ -1445,46 +1445,57 @@
                 btnQR.innerHTML = 'Xác nhận';
             }
 
+            // 🚨 Xóa sạch DOM cũ trước khi tạo mới
+            const readerDiv = document.getElementById('qr-reader');
+            if (readerDiv) readerDiv.innerHTML = '';
+
+            // 🚨 Hủy instance cũ nếu có
+            if (qrScanner) {
+                try { await qrScanner.stop(); qrScanner.clear(); } catch(e){}
+                qrScanner = null;
+            }
+
             qrScanner = new Html5Qrcode("qr-reader");
-            // Thêm cấu hình để hỗ trợ nhiều loại camera trên Tablet tốt hơn
-            qrScanner.start(
-                { facingMode: "environment" }, 
-                { fps: 10, qrbox: { width: 250, height: 250 } },
-                onQRScanSuccess
-            ).catch(err => {
+            
+            try {
+                await qrScanner.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    onQRScanSuccess
+                );
+            } catch (err) {
                 console.error("Camera Error:", err);
-                let msg = 'Không thể mở Camera. Vui lòng kiểm tra lại thiết bị.';
+                let msg = 'Không thể mở Camera.';
                 if (err.toString().includes('NotFoundError') || err.toString().includes('Requested device not found')) {
-                    msg = 'Thiết bị không tìm thấy Camera. Vui lòng dùng thiết bị khác.';
+                    msg = 'Thiết bị không có Camera hoặc đang bị lỗi.';
                 } else if (err.toString().includes('NotAllowedError') || err.toString().includes('Permission denied')) {
-                    msg = 'Bạn chưa cấp quyền Camera. Hãy vào Cài đặt trình duyệt để cấp quyền.';
+                    msg = 'Chưa cấp quyền Camera. Vui lòng vào Cài đặt trình duyệt để cấp quyền.';
                 } else if (err.toString().includes('NotReadableError') || err.toString().includes('Could not start video source')) {
                     msg = 'Camera đang bị ứng dụng khác chiếm dụng. Vui lòng tắt các app đang dùng Camera.';
                 }
-                
                 showToast(msg, false);
-                closeQRModal(); 
-            });
+                closeQRModal(); // Tự đóng nếu lỗi
+            }
         }
 
         async function closeQRModal() {
             if (qrScanner) {
                 try {
-                    // Cố gắng stop an toàn
+                    // Dừng quét
                     await qrScanner.stop();
                 } catch (e) {
-                    console.warn('Lỗi khi stop camera:', e);
+                    console.warn('Lỗi stop:', e);
                 }
                 try {
-                    // Dọn dẹp DOM và nhả stream
+                    // Xóa dữ liệu quét và nhả camera
                     qrScanner.clear();
                 } catch (e) {
-                    console.warn('Lỗi khi clear camera:', e);
+                    console.warn('Lỗi clear:', e);
                 }
-                qrScanner = null; // Xóa biến toàn cục
+                qrScanner = null; // Đặt về null để giải phóng bộ nhớ
             }
             
-            // Đảm bảo thẻ div chứa camera không còn video cũ
+            // 🚨 Xóa sạch thẻ div chứa video để nhả stream hoàn toàn
             const reader = document.getElementById('qr-reader');
             if (reader) reader.innerHTML = '';
             
